@@ -1,0 +1,360 @@
+
+
+
+D1, D2
+	Schottky Diode
+
+	‎DIODE SCHOTTKY 60V 2A DO15 
+	SMC Diode Solutions
+	SB260TA‎
+	digikey:1655-1520-1-ND‎
+
+
+	For Diodes: Typically the katode (ring marked end) to the square pad. So Anode is the round pad.
+
+
+D10
+	Zener diode, 5.0 to 6.8 Volt.
+	Littelfuse SA5.0A 	
+	ESD Suppressors / TVS Diodes SA5.0A Uni-Directional
+	mouser:576-SA5.0A 
+
+
+
+
+D5, D7, D12
+	LED with builtin resistor for 5V
+
+	The green ones can be these:
+	digikey:754-1891-ND
+
+
+
+	For LEDs: Typically the katode (shorter leg) to square pad. So Anode (long leg) is the round pad.
+
+
+D71, D72, D73, D74
+	
+	digikey:C503B-RCN-CW0Z0AA2CT-ND
+
+
+J1
+	Molex 
+	CONN HEADER VERT 2POS 2.54MM 
+	digikey:WM2700-ND
+
+	button or switch
+
+
+	‎E-Switch
+	SWITCH PUSH SPST-NO 3A 120V 
+	RP3502ARED‎
+	digikey:EG1930-ND‎
+
+
+
+J2
+	Molex ‎0022292041‎
+	CONN HEADER VERT 4POS 2.54MM 
+	digikey:WM2746-ND‎
+
+J10
+	Molex 
+	CONN HEADER VERT 2POS 2.54MM 
+	digikey:WM2700-ND
+
+
+J12/J13
+	USB
+	
+	USB-B	
+		CUI Devices
+		CONN RCPT USB2.0 TYPEB 4POS R/A  
+		‎UJ2-BH-W1-TH‎
+		footprint: Connector_USB:USB_B_OST_USB-B1HSxx_Horizontal
+		digikey:102-5887-ND‎
+
+	micro USB
+		To be fully correct these shall sit on the underside of PCB?
+			GCT
+			MICRO B SKT, BOTTOM-SMT, R/A, 30 
+			‎USB3076-30-A‎
+			footprint:Connector_USB:USB_Micro-B_GCT_USB3076-30-A
+			digikey:2073-USB3076-30-ACT-ND‎
+
+
+			Molex
+			CONN RCPT USB2.0 MICRO B SMD R/A 
+			‎1050170001
+			footprint:Connector_USB:USB_Micro-B_Molex-105017-0001‎
+			digikey:WM1399CT-ND‎
+
+
+		This on upper side then?	
+			Molex
+			CONN RCPT USB2.0 MICRO B SMD R/A 
+			‎1051640001‎
+			digikey:WM11263CT-ND‎
+
+J15
+	Patch area if we decide we do not need PS10.
+	If PS10 is omitted then join pins 3 & 4 here. 
+	That way insted of 5 Volt on +5V line we get +Batt which will work also.
+
+J40
+	Molex 
+	CONN HEADER VERT 4POS 2.54MM 
+	This component is optional for now. Only needed if external detectors shall be used.
+
+J91
+	Molex 
+	CONN HEADER VERT 2POS 2.54MM 
+	digikey:WM2700-ND
+
+J51
+	Molex 
+	CONN HEADER VERT 2POS 2.54MM 
+	digikey:WM2700-ND
+
+
+	IR Diode
+	‎INL-3AHIR15‎
+	Inolux
+	THROUGH HOLE / STANDARD 3MM T1 
+	digikey:1830-INL-3AHIR15-ND‎
+
+
+J20
+	Radio transiever
+	‎RFM75-S‎
+	RF Solutions
+	RX TXRX MOD ISM>1GHZ TRC ANT SMD 
+	digikey:RFM75-S-ND‎
+
+	Stiftlist vinklad
+	‎GRPB081VWCN-RC‎
+	Sullins Connector Solutions
+	CONN HEADER R/A 8POS 1.27MM 
+	digikey:S9016E-08-ND‎
+
+	socket
+
+		RECEPTACLE STRIP, 1.27MM, VERTIC 
+		Adam Tech
+		HRS-1B-10-GA‎
+		The radio need 8 pos, this has two extra. One to be unused and one for reset.
+		This way the ISP can also use this connector.
+		digikey:2057-HRS-1B-10-GA-ND‎
+		‎
+		Harwin Inc.
+		CONN RCPT 10POS 0.05 GOLD PCB 
+		M50-3031042‎
+		digikey:952-3580-ND‎
+	‎
+		Sullins Connector Solutions
+		CONN HDR 10POS 0.05 GOLD PCB 
+		‎LPPB101NFFN-RC‎
+		digikey:S9008E-10-ND‎
+
+	old
+		Stiftlist rak
+		‎GRPB081VWVN-RC‎
+		Sullins Connector Solutions
+		CONN HEADER VERT 8POS 1.27MM 
+		digikey:S9014E-08-ND‎
+
+
+
+
+J61
+	Molex 
+	CONN HEADER VERT 2POS 2.54MM 
+	digikey:WM2700-ND
+
+	LASER DIODE 650NM 5MW 10MM DIA 
+	Adafruit Industries LLC ‎1054‎
+	digikey:1528-1391-ND‎
+
+
+J11
+
+	‎B2B-PH-K-S(LF)(SN)‎
+	JST Sales America Inc.
+	CONN HEADER VERT 2POS 2MM 
+	digikey:455-1704-ND‎
+
+	Luxorparts 18650 Li-ion-batteri 3,7 V med kontakt
+	kjell:87925
+
+
+
+	alternatives:
+		‎BH-18650-W‎
+		MPD (Memory Protection Devices)
+		BATTERY HOLDER 18650 6" LEADS 
+		digikey:BH-18650-W-ND‎
+
+		Battery 18650
+		BATTERY LITHIUM 3.7V 2.2AH
+		digikey:1528-1836-ND
+
+
+
+
+K10
+	‎1-1462039-5‎
+	TE Connectivity Potter & Brumfield Relays
+	RELAY TELECOM DPDT 2A 3VDC 
+	‎digikey:PB1167-ND‎
+
+
+L91
+	‎78F100J-TR-RC‎
+	Bourns Inc.
+	FIXED IND 10UH 370MA 750 MOHM TH 
+	digikey:78F100J-TR-RCCT-ND‎
+
+	If this compunent is unavailable put 4.7 Ohm resistor temporarily and replace it later.
+
+PS10
+	DC DC CONVERTER 5V 1W 	
+	Recom Power
+	‎ROE-3.305S‎
+	digikey:ROE-3.305S-ND‎
+
+	Skip this one. See J15 about what to do instead.
+
+
+Q51, Q61, Q71, Q81
+
+	Most NPN transistors minimum 25 Volt compatible with this configuration:
+		1.EMITTER
+		2.BASE
+		3.COLLECTOR
+
+	TRANS NPN 40V 0.2A TO92 
+	Micro Commercial Co
+	2N3904-AP‎
+	digikey:2N3904-APCT-ND‎
+
+	TRANS NPN 40V 200MA TO92-3 
+	ON Semiconductor
+	‎2N3904BU‎
+	digikey:2N3904FS-ND‎
+
+
+	Its possible to use transistors with this config but then REMEMBER to mount them rotated 180.
+		1.COLLECTOR
+		2.BASE
+		3.EMITTER
+	
+
+
+R10
+	2.2 to 10 Ohm, >= 2 W
+	
+	perhaps:
+		RES 4.7 OHM 10% 2W AXIAL 
+		Vishay Beyschlag/Draloric/BC Components
+		PR02FS0204708KR500‎
+		digikey:BC3350CT-ND‎
+	‎
+	or 
+		RES 3.3 OHM 2W 5% AXIAL 
+		Stackpole Electronics Inc
+		‎RSMF2JT3R30‎
+		digikey:RSMF2JT3R30CT-ND‎
+
+
+R18
+	10 KOhm	
+	
+	TODO use 22 KOhm here and adjust SW (in AVR_ADC_init)to use builtin voltage reference.
+
+
+R19
+	10 KOhm	
+
+
+U10
+	IC REG LINEAR 3.3V 500MA TO220-3 
+	Microchip Technology
+	‎MCP1825S-3302E/AB‎
+	digikey:MCP1825S-3302E/AB-ND‎
+
+	heatsink
+	V8508B
+	digikey:A10746-ND
+
+
+U20
+	‎ATMEGA328P-PU‎
+	Microchip Technology
+	IC MCU 8BIT 32KB FLASH 28DIP 
+	digikey:ATMEGA328P-PU-ND‎
+
+U30, U31
+	IR 38kHz detektor/sensor
+	‎TSOP34438‎
+	Vishay Semiconductor Opto Division
+	SENSOR REMOTE REC 38.0KHZ 45M 
+	digikey:TSOP34438-ND‎
+
+
+U91
+	‎TC1427CPA‎
+	Microchip Technology
+	IC GATE DRVR LOW-SIDE 8DIP 
+	digikey:TC1427CPA-ND‎
+
+
+Y20
+	CERAMIC RES 16.0000MHZ 30PF T/H 
+	Murata Electronics, ‎CSTLS16M0X55-B0‎
+	digikey:490-1214-ND‎
+
+
+
+
+
+PCB
+	Plot to gerber (at least these files):
+	transistor_board-B_Cu.gbr
+	transistor_board-B_Mask.gbr
+	transistor_board-B_Paste.gbr
+	transistor_board-B_SilkS.gbr
+	transistor_board-Edge_Cuts.gbr
+	transistor_board-F_Cu.gbr
+	transistor_board-F_Mask.gbr
+	transistor_board-F_Paste.gbr
+	transistor_board-F_SilkS.gbr
+
+
+	These two probably not needed but I always sent them so not sure.
+	transistor_board-NPTH.drl
+	transistor_board-PTH.drl
+
+
+
+	
+	
+
+
+Not used this time
+	Fuse (not needed if battery has builtin protection)
+	PTC RESET FUSE 90V 900MA RADIAL 
+	digikey:507-1340-ND
+
+	‎0022292031‎
+	Molex
+	CONN HEADER VERT 3POS 2.54MM 
+	digikey:WM2745-ND‎
+
+
+	Adapter for 6 pin ISP to our 10 pin SPI/Radio connector
+
+	Mill-Max Manufacturing Corp.
+	CONN HEADER VERT 10POS 1.27MM 
+	digikey:ED10276-ND‎
+	‎850-10-010-10-003000‎
+
