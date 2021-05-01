@@ -40,7 +40,7 @@ References:
 // Returns in data.
 uint8_t avr_spi_transfer(uint8_t out_data)
 {
-	avr_delay_us(1);
+	AVR_DELAY_US(11);
 	SPDR = out_data;
 	while(!(SPSR & (1<<SPIF)))
 	{

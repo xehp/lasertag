@@ -50,7 +50,6 @@ History
  * includes
  * ------------------------------------------------------------------------- */
 #include <avr/io.h>
-#include <avr/wdt.h>
 #include <avr/interrupt.h>
 //#include <avr/signal.h>
 #include <avr/pgmspace.h>
@@ -202,8 +201,7 @@ unsigned char uart_waitchar()
   while (uartRxHead == uartRxTail)
   {
     // we do not have any data in buffer, wait
-    wdt_reset();
-    avr_idle(); // set CPU idle to save power
+	avr_wtd_reset_and_idle();
   }
 
   //cli(); // disable global interrupts, probably not needed.
@@ -228,7 +226,7 @@ unsigned char uart_waitchar()
   /* Wait for data to be received */
   while ( UART_INBUF_EMPTY() )
   {
-    wdt_reset();
+	  avr_wtd_reset_and_idle();
   }
 
   /* Get and return received data from buffer */
@@ -252,7 +250,7 @@ void uart_putchar(char ch)
   while(uartTxHead==tmp)
   {
     // buffer if full, must wait
-    avr_idle(); // set CPU idle to save power during this busy wait.
+	  avr_wtd_reset_and_idle(); // set CPU idle to save power during this busy wait.
   }
 
 

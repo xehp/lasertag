@@ -60,6 +60,7 @@ History
 #endif
 
 
+int16_t power_wtd = 0;
 
 
 #ifdef DEBUG_LED_PORT
@@ -108,8 +109,18 @@ int avr_blink(char n)
 
 
 // This function will set CPU in idle mode, saving energy.
-void avr_idle(void) 
+// Make sure timer 2 (or timer 0) interrupts are started before this is called.
+void avr_wtd_reset_and_idle(void)
 {
+	// Only reset HW watchdog if the power watchdog is not timed out.
+	// That way if power stop calling avr_wtd_reset_power we get a reset.
+	if (power_wtd != 0)
+	{
+		wdt_reset();
+		power_wtd--;
+	}
+
+
 	// enable sleep
 	SMCR|=(1<<SE);
 
@@ -136,6 +147,13 @@ void avr_idle(void)
 	SMCR&=~(1<<SE);
 }
 
+// Only power is allowed to call this reset.
+void avr_wtd_reset_power(void)
+{
+	power_wtd=-1;
+	avr_wtd_reset_and_idle();
+}
+
 
 void avr_delay_ms_16(int delay_ms)
 {
@@ -146,7 +164,7 @@ void avr_delay_ms_16(int delay_ms)
 	while((tick_target-avr_tmr0_get_tick_16())>=0)
 	{
 		// wait
-		wdt_reset();
+		avr_wtd_reset();
 		avr_idle();
 	}
 #elif (defined AVR_SYS_USE_TMR2) && (AVR_TMR2_TICKS_PER_SEC == 1000)
@@ -156,8 +174,7 @@ void avr_delay_ms_16(int delay_ms)
 	while((tick_target-avr_tmr2_get_tick_16())>=0)
 	{
 		// wait
-		wdt_reset();
-		avr_idle();
+		avr_wtd_reset_and_idle();
 	}
 #elif defined AVR_SYS_USE_TMR2
 	// Translate into timer2 ticks
@@ -166,8 +183,7 @@ void avr_delay_ms_16(int delay_ms)
 	while((tick_target-avr_tmr2_get_tick_16())>=0)
 	{
 		// wait
-		wdt_reset();
-		avr_idle();
+		avr_wtd_reset_and_idle();
 	}
 #elif 1
 void avr_delay_ms_16(int delay_ms)
@@ -177,7 +193,7 @@ void avr_delay_ms_16(int delay_ms)
 	{
 		for (i=0; i<(AVR_FOSC/6000L); i++)
 		{
-			wdt_reset(); // If wdt_reset isn't wanted, put a no OP here instead: asm ("nop");
+			avr_wtd_reset_and_idle(); // If wdt_reset isn't wanted, put a no OP here instead: asm ("nop");
 		}
 		delay_ms--;
 	}
@@ -276,16 +292,22 @@ void avr_error_handler_P(const char *pgm_addr, uint16_t errorCode)
 // set up hardware (port directions, registers etc.)
 void avr_init() 
 {
-	// TODO Change WDT settings to give it more time such as 8 seconds.
+	// Change WDT settings to give it more time such as 8 seconds.
 	// Idea being that only power_tick_s shall issue wdt_reset() after this setting.
 	// Ref [1] Chapter 11.9.2
 	// Perhaps this code shall be placed in avr_init() in file avr_sys.c?
-	// wdt_reset();
-	// WDTCSR = 0x2F;
-	// RELAY_ENABLE();
-	// RELAY_ON();
-	// After enabling this find and remove all wdt_reset except the one here and in
+	/*UART_PRINT_P("sys_init\r\n");
+	wdt_reset();
+	WDTCSR = 0x2F;
+	RELAY_ON();
+	RELAY_ENABLE();*/
+	// TODO After enabling this find and remove all wdt_reset except the one here and in
 	// power_tick_s. Same with #include <avr/wdt.h>
+	// TODO The above did nothing, don't know why so commented it out.
+	// Will make an extra slow watchdog timer just for power.
+
+	wdt_enable(WDTO_2S);
+
 
 	// Analog comparator
 	ACSR|=1<<ACD; // disable analog comparator to save power
@@ -300,6 +322,8 @@ void avr_init()
 #else
 #error
 #endif
+
+	avr_wtd_reset_and_idle();
 }
 
 int64_t avr_systime_ms_64(void)

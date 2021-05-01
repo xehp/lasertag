@@ -25,7 +25,6 @@ History
 */
 
 
-#include <avr/wdt.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -44,34 +43,48 @@ History
 #include "version.h"
 
 
-const uint32_t ignore_mask = 0x70;
+const uint32_t ignore_mask = 0x76;
 
 int16_t main_timer_ms=0;
 int32_t main_counter_s=0;
 int8_t main_state=0;
 uint32_t log_pin = 0;
 
-
+static void log_ports(void)
+{
+	const uint32_t b = PINB;
+	const uint32_t c = PINC;
+	const uint32_t d = PIND;
+	const uint32_t p = (b << 16) | (c << 8) | (d);
+	if ((log_pin | ignore_mask) != (p | ignore_mask))
+	{
+		UART_PRINT_P("pin ");
+		uart_print_hex32(p);
+		UART_PRINT_P("\r\n");
+		log_pin = p;
+	}
+}
 
 int main( void ) 
 {
-	wdt_enable(WDTO_2S);
-
 	// Initiate system timer. The one that give us milli seconds.
 	avr_init();
-	wdt_reset();
+
 
 	// Initiate USART (serial port).
 	uart_init();
 	UART_PRINT_P("\r\n" VERSION_STRING "\r\n");
+	avr_wtd_reset_and_idle();
+
+
+
 	avr_delay_ms_16(200);
-	wdt_reset();
 
 	// Initiate all sub tasks here.
 
 	#ifdef DEBUG_LED_PORT
 	avr_blink(3); // just so we see that it started
-	wdt_reset();
+	avr_wtd_reset_and_idle();
 	#endif
 
 	avr_tmr0_init();
@@ -87,21 +100,17 @@ int main( void )
 
 	game_init();
 	avr_delay_ms_16(200);
-	wdt_reset();
 
 	power_init();
 	avr_delay_ms_16(200);
-	wdt_reset();
 
 
 	beep_init();
 	avr_delay_ms_16(200);
-	wdt_reset();
 
 
 	radio_init();
 	avr_delay_ms_16(200);
-	wdt_reset();
 
 
 	// All init is done, get ready to run main loop.
@@ -134,6 +143,8 @@ int main( void )
 
 		game_process();
 
+		log_ports();
+
 		switch(main_state)
 		{
 			case 0:
@@ -156,17 +167,7 @@ int main( void )
 			case 1:
 			{
 				// log digital inputs
-				uint32_t b = PINB;
-				uint32_t c = PINC;
-				uint32_t d = PIND;
-				uint32_t p = (b << 16) | (c << 8) | (d);
-				if ((log_pin | ignore_mask) != (p | ignore_mask))
-				{
-					UART_PRINT_P("pin ");
-					uart_print_hex32(p);
-					UART_PRINT_P("\r\n");
-					log_pin = p;
-				}
+				log_ports();
 				++main_state;
 				break;
 			}
@@ -189,10 +190,9 @@ int main( void )
 				break;
 		}
 
-		wdt_reset();
 
 		// Set CPU in idle mode to save energy, it will wake up next time there is an interrupt
-		avr_idle();
+		avr_wtd_reset_and_idle();
 	}
 
 

@@ -25,7 +25,32 @@ History
 #ifndef RADIO_H
 #define RADIO_H
 
+
 #define RADIO_PAYLOAD_SIZE 5
+
+#define RADIO_FIFO_SIZE 8
+
+struct Radio_fifo_entry
+{
+	uint8_t data[RADIO_PAYLOAD_SIZE];
+};
+
+struct Radio_fifo
+{
+  uint8_t head;
+  uint8_t tail;
+  struct Radio_fifo_entry buffer[RADIO_FIFO_SIZE];
+};
+
+
+#define RADIO_FIFO_INC(index) ((index+1)&(RADIO_FIFO_SIZE-1))
+
+void radio_fifo_init(struct Radio_fifo *fifoPtr);
+void radio_fifo_put(struct Radio_fifo *fifoPtr, const uint8_t *data, uint8_t data_len);
+int8_t radio_fifo_is_full(struct Radio_fifo *fifoPtr);
+int8_t radio_fifo_is_empty(struct Radio_fifo *fifoPtr);
+const uint8_t radio_fifo_take(struct Radio_fifo *fifoPtr, uint8_t *buf_ptr, uint8_t buf_size);
+
 
 /**
  * Returns number of bytes received.

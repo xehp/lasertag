@@ -38,6 +38,11 @@ References:
 #include "avr_spi.h"
 #include "radio.h"
 
+
+
+
+
+
 // Ref [2] 6.3.1 SPI Command table 3
 #define RFM75_R_REGISTER 0
 #define RFM75_W_REGISTER 0x20
@@ -67,6 +72,7 @@ References:
 #define RFM75_CONFIG_EN_CRC_MASK 0x08
 #define RFM75_CONFIG_PWR_UP_MASK 0x02
 #define RFM75_STATUS_RX_DR_MASK 0x40
+#define RFM75_STATUS_TX_DR_MASK 0x20
 #define RFM75_STATUS_MAX_RT_MASK 0x10
 #define RFM75_PRIM_RX_MASK 0x01
 #define RFM75_EN_RXADDR_ERX_P0_MASK 1
@@ -76,6 +82,7 @@ References:
 
 #define radio_is_data_received() (status & RFM75_STATUS_RX_DR_MASK)
 #define radio_is_max_retrans() (status & RFM75_STATUS_MAX_RT_MASK)
+#define radio_is_data_sent() (status & RFM75_STATUS_TX_DR_MASK)
 
 
 static uint8_t state = 0;
@@ -86,13 +93,71 @@ static uint8_t log_status = 0;
 static uint8_t logged_irq = 0;
 static uint8_t logged_rx_pw_p0 = 0;
 
+
+static void radio_copy(uint8_t *dst, const uint8_t *src, uint8_t n)
+{
+	while(n>0)
+	{
+		*dst = *src;
+		dst++;
+		src++;
+		n--;
+	}
+}
+
+void radio_fifo_init(struct Radio_fifo *fifoPtr)
+{
+	fifoPtr->head = 0;
+	fifoPtr->tail = 0;
+}
+
+void radio_fifo_put(struct Radio_fifo *fifoPtr, const uint8_t *data, uint8_t data_len)
+{
+	if (radio_fifo_is_full(fifoPtr))
+	{
+		fifoPtr->tail = RADIO_FIFO_INC(fifoPtr->tail);
+	}
+	ASSERT(data_len == RADIO_PAYLOAD_SIZE);
+	radio_copy(fifoPtr->buffer[fifoPtr->head].data, data, RADIO_PAYLOAD_SIZE);
+	fifoPtr->head = RADIO_FIFO_INC(fifoPtr->head);
+}
+
+int8_t radio_fifo_is_full(struct Radio_fifo *fifoPtr)
+{
+  return (((uint8_t)RADIO_FIFO_INC(fifoPtr->head)) == fifoPtr->tail);
+}
+
+int8_t radio_fifo_is_empty(struct Radio_fifo *fifoPtr)
+{
+  return (fifoPtr->head == fifoPtr->tail);
+}
+
+const uint8_t radio_fifo_take(struct Radio_fifo *fifoPtr, uint8_t *buf_ptr, uint8_t buf_size)
+{
+	if (radio_fifo_is_empty(fifoPtr))
+	{
+		return 0;
+	}
+	ASSERT(buf_size == RADIO_PAYLOAD_SIZE);
+	radio_copy(buf_ptr, fifoPtr->buffer[fifoPtr->tail].data, buf_size);
+	fifoPtr->tail = RADIO_FIFO_INC(fifoPtr->tail);
+	return RADIO_PAYLOAD_SIZE;
+}
+
+
+
+
+struct Radio_fifo receive_fifo;
+struct Radio_fifo transmit_fifo;
+
+
 static void log_status_change(void)
 {
 	uint8_t irq = RADIO_IRQ_READ();
 	if (irq != logged_irq)
 	{
 		UART_PRINT_P("irq ");
-		uart_print_hex8(irq);
+		uart_print_hex4(irq);
 		UART_PRINT_P("\r\n");
 		logged_irq = irq;
 	}
@@ -103,6 +168,7 @@ static void log_status_change(void)
 		UART_PRINT_P("\r\n");
 		log_status = status;
 	}
+	AVR_DELAY_US(15);
 }
 
 static void radio_write_command(uint8_t cmd)
@@ -175,15 +241,27 @@ static void radio_clear_max_retrans(void)
 	radio_write_register(RFM75_STATUS, RFM75_STATUS_MAX_RT_MASK);
 }
 
+static void radio_clear_data_received(void)
+{
+	//const uint8_t tmp = radio_read_register(RFM75_STATUS);
+	//radio_write_register(RFM75_STATUS, tmp | RFM75_STATUS_RX_DR_MASK);
+	radio_write_register(RFM75_STATUS, RFM75_STATUS_RX_DR_MASK);
+}
+
+static void radio_clear_data_sent(void)
+{
+	//const uint8_t tmp = radio_read_register(RFM75_STATUS);
+	//radio_write_register(RFM75_STATUS, tmp | RFM75_STATUS_RX_DR_MASK);
+	radio_write_register(RFM75_STATUS, RFM75_STATUS_TX_DR_MASK);
+}
+
+static void radio_clear_all_flags(void)
+{
+	radio_write_register(RFM75_STATUS, RFM75_STATUS_RX_DR_MASK | RFM75_STATUS_TX_DR_MASK | RFM75_STATUS_MAX_RT_MASK);
+}
+
 static void radio_read_status(void)
 {
-	if (radio_is_max_retrans())
-	{
-		UART_PRINT_P("max_rt\r\n");
-		radio_clear_max_retrans();
-		radio_flush_tx();
-	}
-
 	uint8_t tmp = radio_read_register(RFM75_RX_PW_P0);
 	if (tmp != logged_rx_pw_p0)
 	{
@@ -198,6 +276,8 @@ static void radio_read_status(void)
 
 static void radio_read_rx_data(uint8_t *data, uint8_t len)
 {
+	UART_PRINT_P("reading\r\n");
+
 	RADIO_CSN_ON();
 	status = avr_spi_transfer(RFM75_R_RX_PAYLOAD);
 	for (int8_t i=0; i<len; ++i)
@@ -210,10 +290,17 @@ static void radio_read_rx_data(uint8_t *data, uint8_t len)
 
 void radio_send_data(const uint8_t *data, uint8_t len)
 {
-	UART_PRINT_P("s\r\n");
+	UART_PRINT_P("sending ");
+	for (uint8_t i=0; i<len; ++i)
+	{
+		uart_print_hex8(data[i]);
+	}
+	UART_PRINT_P("\r\n");
+
+	RADIO_CE_OFF();
 
 	radio_write_command(RFM75_FLUSH_TX);
-	AVR_DELAY_US(10);
+	AVR_DELAY_US(11);
 
 	RADIO_CSN_ON();
 	status = avr_spi_transfer(RFM75_W_TX_PAYLOAD);
@@ -221,11 +308,12 @@ void radio_send_data(const uint8_t *data, uint8_t len)
 	{
 		avr_spi_transfer(data[i]);
 	}
+	AVR_DELAY_US(11);
 	RADIO_CSN_OFF();
+	AVR_DELAY_US(11);
 	RADIO_CE_ON();
 	AVR_DELAY_US(20);
 	RADIO_CE_OFF();
-
 	log_status_change();
 }
 
@@ -303,12 +391,13 @@ static void radio_log_register(uint8_t reg_id)
 
 static void radio_tx_mode(void)
 {
-	UART_PRINT_P("tx\r\n");
+	//UART_PRINT_P("tx mode\r\n");
 
 	// Set CE ON only later when it is time to send (see radio_send_data).
     RADIO_CE_OFF();
 
     radio_flush_tx();
+    radio_clear_all_flags();
 
     //radio_write_one_byte_register(RFM75_TX_PW, PAYLOAD_SIZE);
     radio_write_register(RFM75_CONFIG, RFM75_CONFIG_EN_CRC_MASK + RFM75_CONFIG_PWR_UP_MASK);
@@ -320,8 +409,9 @@ static void radio_tx_mode(void)
 
 void radio_rx_mode(void)
 {
-	UART_PRINT_P("rx\r\n");
+	//UART_PRINT_P("rx mode\r\n");
 
+	radio_clear_data_received();
 	radio_flush_rx();
     radio_write_register(RFM75_RX_PW_P0, RADIO_PAYLOAD_SIZE);
     radio_write_register(RFM75_CONFIG, RFM75_CONFIG_EN_CRC_MASK + RFM75_CONFIG_PWR_UP_MASK + RFM75_PRIM_RX_MASK);
@@ -331,12 +421,6 @@ void radio_rx_mode(void)
 
 
 
-static void radio_clear_data_received(void)
-{
-	//const uint8_t tmp = radio_read_register(RFM75_STATUS);
-	//radio_write_register(RFM75_STATUS, tmp | RFM75_STATUS_RX_DR_MASK);
-	radio_write_register(RFM75_STATUS, RFM75_STATUS_RX_DR_MASK);
-}
 
 
 static void radio_set_addr_etc(void)
@@ -359,12 +443,10 @@ static void radio_set_addr_etc(void)
  */
 uint8_t radio_receive_data(uint8_t *buf_ptr, uint8_t buf_size)
 {
-	ASSERT(buf_size == RADIO_PAYLOAD_SIZE);
-	if (radio_is_data_received())
+	if (!radio_fifo_is_empty(&receive_fifo))
 	{
-		radio_read_rx_data(buf_ptr, buf_size);
-		radio_clear_data_received();
-		return buf_size;
+		return radio_fifo_take(&receive_fifo, buf_ptr, buf_size);
+
 	}
 	return 0;
 }
@@ -376,30 +458,12 @@ uint8_t radio_receive_data(uint8_t *buf_ptr, uint8_t buf_size)
  */
 int8_t radio_transmit_data(const uint8_t *buf_ptr, uint8_t buf_size)
 {
-	ASSERT(buf_size == RADIO_PAYLOAD_SIZE);
-
-	/*if (send_buffer_size != 0)
+	if (!radio_fifo_is_full(&transmit_fifo))
 	{
-		return -1;
+		radio_fifo_put(&transmit_fifo, buf_ptr, buf_size);
+		return 0;
 	}
-
-	for(uint8_t i = 0; i<buf_size; ++i)
-	{
-		send_buffer[i] = buf_ptr[i];
-	}
-
-	send_buffer_size = buf_size;*/
-
-	radio_tx_mode();
-
-	radio_send_data(buf_ptr, buf_size);
-
-	AVR_DELAY_US(200);
-
-	radio_rx_mode();
-
-	return 0;
-
+	return -1;
 }
 
 
@@ -409,13 +473,21 @@ void radio_init(void)
 
 	avr_spi_init();
 
+	radio_fifo_init(&receive_fifo);
+	radio_fifo_init(&transmit_fifo);
+
     RADIO_CE_OFF();
-    RADIO_CSN_OFF();
-
     RADIO_CE_ENABLE();
-    RADIO_CSN_ENABLE();
-    RADIO_IRQ_INIT();
+    AVR_DELAY_US(20);
 
+    RADIO_CSN_OFF();
+    RADIO_CSN_ENABLE();
+    AVR_DELAY_US(20);
+
+    RADIO_IRQ_INIT();
+    AVR_DELAY_US(20);
+
+	radio_clear_all_flags();
     AVR_DELAY_US(20);
 
 	radio_set_addr_etc();
@@ -428,6 +500,8 @@ void radio_process(void)
 	const int16_t t = avr_systime_ms_16();
 	const int16_t d = t - timer_ms;
 
+	radio_read_status();
+
 	switch(state)
 	{
 	case 0:
@@ -435,10 +509,10 @@ void radio_process(void)
 		{
 			radio_read_status();
 
-			++state;
+			state++;
 			counter = 0;
 
-			timer_ms +=1000;
+			timer_ms = t + 1000;
 		}
 		break;
 
@@ -451,12 +525,12 @@ void radio_process(void)
 			if (counter > 17)
 			{
 				counter = 0;
-				++state;
-				timer_ms +=1000;
+				state++;
+				timer_ms = t + 1000;
 			}
 			else
 			{
-				timer_ms +=100;
+				timer_ms = t + 100;
 			}
 		}
 		break;
@@ -465,72 +539,122 @@ void radio_process(void)
 		if (d >= 0)
 		{
 			radio_tx_mode();
-			timer_ms +=100;
-			++state;
+			timer_ms = t + 100;
+			state++;
 		}
 		break;
 
 	case 3:
 	{
-		radio_read_status();
 		if (d >= 0)
 		{
 			uint8_t data[RADIO_PAYLOAD_SIZE] = {'H', 'e', 'l','l','o'};
 			radio_send_data(data, sizeof(data));
-			++state;
-			timer_ms +=100;
+			timer_ms = t + 5000;
+			state++;
 		}
 		break;
 	}
 
 	case 4:
-	{
-		radio_read_status();
-		if (d >= 0)
+		if (radio_is_max_retrans())
 		{
-			uint8_t data[RADIO_PAYLOAD_SIZE] = {'W', 'o', 'r', 'l', 'd'};
-			radio_send_data(data, sizeof(data));
-			++state;
-			timer_ms +=100;
+			UART_PRINT_P("max_rt\r\n");
+			radio_clear_all_flags();
+			radio_flush_tx();
+			timer_ms = t + 20;
+			state++;
+		}
+
+		if (radio_is_data_sent())
+		{
+			UART_PRINT_P("sent ok\r\n");
+			radio_clear_all_flags();
+			timer_ms = t + 20;
+			state++;
+		}
+
+		if (d>0)
+		{
+			UART_PRINT_P("timeout\r\n");
+			radio_clear_all_flags();
+			timer_ms = t + 20;
+			state++;
 		}
 		break;
-	}
 
 	case 5:
-		radio_read_status();
 		if (d >= 0)
 		{
-			UART_PRINT_P("rx mode\r\n");
+			//UART_PRINT_P("rx state\r\n");
 			radio_rx_mode();
-			++state;
-			timer_ms +=100;
+			timer_ms = t + 20;
+			state++;
 		}
 		break;
 
 	case 6:
-		radio_read_status();
+		if (radio_is_max_retrans())
+		{
+			UART_PRINT_P("max_rt (late)\r\n");
+			radio_clear_max_retrans();
+		}
+		if (radio_is_data_sent())
+		{
+			UART_PRINT_P("sent ok (late)\r\n");
+			radio_clear_data_sent();
+		}
+
 		if (radio_is_data_received())
 		{
+			radio_clear_data_received();
+
 			//radio_log_register(RFM75_RX_PW_P0);
-			UART_PRINT_P("received ");
 			uint8_t data[RADIO_PAYLOAD_SIZE] = {0};
 			radio_read_rx_data(data, sizeof(data));
+
+			UART_PRINT_P("received ");
 			for (uint8_t i=0; i<sizeof(data); ++i)
 			{
 				uart_print_hex8(data[i]);
 			}
 			UART_PRINT_P("\r\n");
-			radio_clear_data_received();
-			timer_ms = t+1;
-			++state;
+
+			radio_fifo_put(&receive_fifo, data, RADIO_PAYLOAD_SIZE);
 		}
+
+		if (!radio_fifo_is_empty(&transmit_fifo))
+		{
+			radio_tx_mode();
+			timer_ms = t + 20;
+			state++;
+		}
+
 		break;
 
+	case 7:
+		if (d >= 0)
+		{
+			uint8_t data[RADIO_PAYLOAD_SIZE];
+
+			radio_fifo_take(&transmit_fifo, data, sizeof(data));
+
+			radio_send_data(data, sizeof(data));
+
+			//if (radio_fifo_is_empty(&transmit_fifo))
+			{
+				timer_ms = t + 5000;
+				state=4;
+			}
+		}
+
+		break;
 	default:
 		if (d >= 0)
 		{
+			UART_PRINT_P("default\r\n");
 			radio_read_status();
-			timer_ms = t+1;
+			timer_ms = t + 1000;
 		}
 		break;
 	}

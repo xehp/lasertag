@@ -81,7 +81,11 @@ int16_t avr_systime_ms_16(void);
 int64_t avr_systime_ms_64(void);
 
 // Enter power save mode
-void avr_idle(void);
+void avr_wtd_reset_and_idle(void);
+
+// Reset the extra power watch dog.
+// Only power is allowed to call this reset.
+void avr_wtd_reset_power(void);
 
 void avr_error_handler_P(const char *pgm_addr, uint16_t errorCode);
 

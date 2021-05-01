@@ -38,7 +38,7 @@ static int16_t game_timer_ms = 0;
 static int16_t game_counter = 0;
 static uint8_t internal_ir_state = 0;
 static uint8_t external_ir_state = 0;
-
+static uint32_t msg_counter = 0;
 
 void game_init(void)
 {
@@ -52,7 +52,6 @@ void game_process(void)
 
 	uint8_t tmp[RADIO_PAYLOAD_SIZE] = {0};
 	const uint8_t n = radio_receive_data(tmp, sizeof(tmp));
-
 	if (n>0)
 	{
 		UART_PRINT_P("radio ");
@@ -146,14 +145,23 @@ void game_process(void)
 
 void game_tick_s()
 {
-	if (game_counter>30)
+	if (game_counter>20)
 	{
-		const uint8_t data[RADIO_PAYLOAD_SIZE] = {'H', 'e', 'l','l','o'};
+		uint8_t data[RADIO_PAYLOAD_SIZE];
+
+		data[0] = 0;
+		data[1] = (msg_counter >> 24) & 0xFF;
+		data[2] = (msg_counter >> 16) & 0xFF;
+		data[3] = (msg_counter >> 8) & 0xFF;
+		data[4] = msg_counter & 0xFF;
+
 		const int8_t r = radio_transmit_data(data, sizeof(data));
 		if (r!=0)
 		{
 			UART_PRINT_P("fail\r\n");
 		}
+		msg_counter++;
+		game_counter = 0;
 	}
 	else
 	{

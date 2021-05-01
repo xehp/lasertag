@@ -23,8 +23,13 @@ History
 
 */
 
-// When reading 16bit reg remember to read low byte first then high byte
-// when writing write high byte first then low byte but hopefully the C compiler does this.
+/*
+When reading 16bit reg remember to read low byte first then high byte
+when writing write high byte first then low byte but hopefully the C compiler does this.
+
+References:
+[1] https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061B.pdf
+*/
 
 
 #include <avr/interrupt.h>
@@ -36,7 +41,7 @@ History
 
 // List analog channels that shall be sampled here.
 // Same channel can be listed more than once if it is needed more often than others.
-// Or for noise suppression take 3 values so that the median of 3 can be used.
+// Or for noise suppression do 3 values and take the median value.
 static const uint8_t sampling_sequence[] = { 0, 0, 0 };
 
 #define AVR_ADC_N_SAMPLES_TO_TAKE (sizeof(sampling_sequence))
@@ -96,15 +101,13 @@ void AVR_ADC_init(void)
   // Disable digital input buffers to save power.
   //DIDR0=0x3f;
 
-
+  // Ref [1] Chapter 24.9.1 "ADMUX – ADC Multiplexer Selection Register"
   // ADMUX: REFS1, REFS0, ADLAR, -, MUX3, MUX2, MUX1, MUX0
   // REFS1:0 = 3 means use internal bandgap reference
-  //ADMUX=(3<<REFS0);
+  ADMUX=(3<<REFS0);
   // REFS1:0 = 1 means use Vcc reference
-  ADMUX=(1<<REFS0);
-
-
-  // TODO Use builtin reference instead of Vcc reference. Change R18 in HW from 10 to 22 KOhm.
+  // ADMUX=(1<<REFS0);
+  // REFS[1:0] shall be 0x3
   
   // ADCSRA: ADEN, ADSC, ADFR, ADIF, ADIE, ADPS2, ADPS1, ADPS0
   // ADEN: 1 = enable ADC (The user is advised to write zero to ADEN before entering some sleep modes to avoid excessive power consumption.)
@@ -147,7 +150,7 @@ void AVR_ADC_startSampling(void)
     avr_adc_counter=0;
 
 
-    // enable adc compleate interrupt
+    // enable ADC complete interrupt
     ADCSRA|=(1<<ADIE);
 
     // Start the conversion

@@ -27,7 +27,6 @@ References:
 [1] https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061B.pdf
 */
 
-#include <avr/wdt.h>
 #include <avr/pgmspace.h>
 #include <stdint.h>
 #include "avr_cfg.h"
@@ -38,6 +37,7 @@ References:
 #include "power.h"
 
 // Its about 154 ADC steps per Volt
+// TODO We need to let ADC use its internal voltage reference.
 #define BATTERY_DEPLETED 520
 #define BATTERY_NEED_CHARGING 550
 #define BATTERY_FULL 610
@@ -293,7 +293,6 @@ void power_tick_s(void)
 		}
     }
 
-    // TODO power is actually the most important task in this program. Perhaps we should do wdt_reset() here and ONLY here.
-    wdt_reset();
+    avr_wtd_reset_power();
 }
 
