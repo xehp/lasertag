@@ -27,6 +27,8 @@ History
 #ifndef AVR_MISC_H
 #define AVR_MISC_H
 
+#include <stdint.h>
+
 
 #ifndef NULL
 #define NULL 0

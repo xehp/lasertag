@@ -89,8 +89,8 @@ static uint8_t state = 0;
 static int16_t timer_ms = 0;
 static int16_t counter = 0;
 static uint8_t status = 0;
-static uint8_t log_status = 0;
-static uint8_t logged_irq = 0;
+//static uint8_t log_status = 0;
+//static uint8_t logged_irq = 0;
 static uint8_t logged_rx_pw_p0 = 0;
 
 
@@ -153,6 +153,7 @@ struct Radio_fifo transmit_fifo;
 
 static void log_status_change(void)
 {
+	#if 0
 	uint8_t irq = RADIO_IRQ_READ();
 	if (irq != logged_irq)
 	{
@@ -168,7 +169,9 @@ static void log_status_change(void)
 		UART_PRINT_P("\r\n");
 		log_status = status;
 	}
-	AVR_DELAY_US(15);
+	#else
+	AVR_DELAY_US(10);
+	#endif
 }
 
 static void radio_write_command(uint8_t cmd)
@@ -262,6 +265,7 @@ static void radio_clear_all_flags(void)
 
 static void radio_read_status(void)
 {
+	#if 1
 	uint8_t tmp = radio_read_register(RFM75_RX_PW_P0);
 	if (tmp != logged_rx_pw_p0)
 	{
@@ -270,13 +274,14 @@ static void radio_read_status(void)
 		UART_PRINT_P("\r\n");
 		logged_rx_pw_p0 = tmp;
 	}
-
+	#else
 	radio_write_command(RFM75_NOP);
+	#endif
 }
 
 static void radio_read_rx_data(uint8_t *data, uint8_t len)
 {
-	UART_PRINT_P("reading\r\n");
+	//UART_PRINT_P("radio_read_rx_data\r\n");
 
 	RADIO_CSN_ON();
 	status = avr_spi_transfer(RFM75_R_RX_PAYLOAD);
@@ -290,17 +295,11 @@ static void radio_read_rx_data(uint8_t *data, uint8_t len)
 
 void radio_send_data(const uint8_t *data, uint8_t len)
 {
-	UART_PRINT_P("sending ");
-	for (uint8_t i=0; i<len; ++i)
-	{
-		uart_print_hex8(data[i]);
-	}
-	UART_PRINT_P("\r\n");
-
 	RADIO_CE_OFF();
+	AVR_DELAY_US(10);
 
 	radio_write_command(RFM75_FLUSH_TX);
-	AVR_DELAY_US(11);
+	AVR_DELAY_US(10);
 
 	RADIO_CSN_ON();
 	status = avr_spi_transfer(RFM75_W_TX_PAYLOAD);
@@ -308,12 +307,29 @@ void radio_send_data(const uint8_t *data, uint8_t len)
 	{
 		avr_spi_transfer(data[i]);
 	}
-	AVR_DELAY_US(11);
+	AVR_DELAY_US(10);
 	RADIO_CSN_OFF();
-	AVR_DELAY_US(11);
+	AVR_DELAY_US(10);
+
 	RADIO_CE_ON();
-	AVR_DELAY_US(20);
+
+	if (uart_get_free_space_in_write_buffer() >= (UART_TX_BUFFER_SIZE/2))
+	{
+		UART_PRINT_P("sending ");
+		for (uint8_t i=0; i<len; ++i)
+		{
+			uart_print_hex8(data[i]);
+		}
+		UART_PRINT_P("\r\n");
+	}
+	else
+	{
+		uart_putchar('#');
+		AVR_DELAY_US(20);
+	}
+
 	RADIO_CE_OFF();
+
 	log_status_change();
 }
 
@@ -409,7 +425,7 @@ static void radio_tx_mode(void)
 
 void radio_rx_mode(void)
 {
-	//UART_PRINT_P("rx mode\r\n");
+	//UART_PRINT_P("radio_rx_mode\r\n");
 
 	radio_clear_data_received();
 	radio_flush_rx();
@@ -523,7 +539,8 @@ void radio_process(void)
 		break;
 
 	case 1:
-		if (d >= 0)
+		//if (d >= 0)
+		if (uart_get_free_space_in_write_buffer() >= (UART_TX_BUFFER_SIZE/2))
 		{
 			radio_log_register(counter);
 			++counter;
@@ -613,18 +630,24 @@ void radio_process(void)
 
 		if (radio_is_data_received())
 		{
-			radio_clear_data_received();
-
 			//radio_log_register(RFM75_RX_PW_P0);
 			uint8_t data[RADIO_PAYLOAD_SIZE] = {0};
 			radio_read_rx_data(data, sizeof(data));
 
-			UART_PRINT_P("received ");
-			for (uint8_t i=0; i<sizeof(data); ++i)
+			if (uart_get_free_space_in_write_buffer() >= (UART_TX_BUFFER_SIZE/2))
 			{
-				uart_print_hex8(data[i]);
+				UART_PRINT_P("received ");
+				for (uint8_t i=0; i<sizeof(data); ++i)
+				{
+					uart_print_hex8(data[i]);
+				}
+				UART_PRINT_P("\r\n");
 			}
-			UART_PRINT_P("\r\n");
+			else
+			{
+				uart_putchar('#');
+			}
+			radio_clear_data_received();
 
 			radio_fifo_put(&receive_fifo, data, RADIO_PAYLOAD_SIZE);
 		}
@@ -647,11 +670,8 @@ void radio_process(void)
 
 			radio_send_data(data, sizeof(data));
 
-			//if (radio_fifo_is_empty(&transmit_fifo))
-			{
-				timer_ms = t + 5000;
-				state=4;
-			}
+			timer_ms = t + 5000;
+			state=4;
 		}
 
 		break;

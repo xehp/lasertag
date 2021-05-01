@@ -23,6 +23,9 @@ History
 */
 
 /*
+TODO Use Atmega internal temp sensor so we can avoid charging at cold temp.
+
+
 References:
 [1] https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061B.pdf
 */
@@ -39,11 +42,24 @@ References:
 
 // At 3.425 Volt got ADC value 0x024c (588)
 #define MicroVolt_PER_ADC_UNIT 5825
-// Its about 154 ADC steps per Volt
-// TODO We need to let ADC use its internal voltage reference.
-#define BATTERY_DEPLETED_MV 3300
-#define BATTERY_NEED_CHARGING_MV 3500
-#define BATTERY_FULL_MV 3900
+
+// https://batteryuniversity.com/learn/article/charging_lithium_ion_batteries
+// Typical LiIon can be charged to 4.2 Volt (some unusual ones only 4.1 Volt).
+// A 50 mV margin from that is recommended so we could use 4150 mV.
+// Its only good for the Lithium-ion to not fully charge it (and not fully deplete it).
+// We probably have plenty of capacity so we can keep some extra margin.
+// We will not optimize performance yet so 4.05 Volt (4050 mV) will do for now.
+#define BATTERY_FULL_MV 4050
+
+// https://batteryuniversity.com/learn/article/confusion_with_voltages
+// Typically LiIon is empty at 2.8 to 3.0 Volt.
+// We choose a conservative value and some margin.
+// If voltage drop to 3.1 Volt (or so) we consider it depleted.
+#define BATTERY_DEPLETED_MV 3100
+
+// We need 3.3 Volt and there is some loss in the voltage regulator.
+#define BATTERY_LOW_BATTERY_WARNING_MV 3400
+
 #define BATTERY_TIMEOUT 0xFFFF
 
 enum {
@@ -57,7 +73,7 @@ enum {
 
 static int8_t power_state = 0;
 static int8_t power_counter = 0;
-static uint16_t log_voltage_mV = 0;
+static uint16_t voltage_mV = 0;
 //static int16_t timer_ms = 0;
 
 // Find median value of the latest 3 values.
@@ -155,7 +171,7 @@ static uint16_t read_adc(void)
 
 		const uint16_t mv = ((uint32_t)fv * MicroVolt_PER_ADC_UNIT) / 1000L;
 
-		if (log_voltage_mV != mv)
+		if (voltage_mV != mv)
 		{
 
 			char tmp[32];
@@ -170,7 +186,7 @@ static uint16_t read_adc(void)
 			uart_putchar(' ');*/
 			uart_print(tmp);
 			uart_print_P(PSTR(" mV\r\n"));
-			log_voltage_mV = mv;
+			voltage_mV = mv;
 		}
 		AVR_ADC_startSampling();
 		return mv;
@@ -188,7 +204,7 @@ static uint16_t read_adc(void)
 void power_tick_s(void)
 {
 	// This is just debugging, remove later.
-	{
+	/*{
 		char tmp[32];
 		utility_lltoa(log_voltage_mV, tmp, 10);
 
@@ -197,7 +213,7 @@ void power_tick_s(void)
 		uart_putchar(' ');
 		uart_print(tmp);
 		uart_print_P(PSTR(" mV\r\n"));
-	}
+	}*/
 
     switch (power_state)
     {
@@ -270,7 +286,7 @@ void power_tick_s(void)
 				{
 					++power_counter;
 				}
-				else if (pv < BATTERY_NEED_CHARGING_MV)
+				else if (pv < BATTERY_LOW_BATTERY_WARNING_MV)
 				{
 					// Battery need charging again
 					uart_print_P(PSTR("power charging\r\n"));
@@ -290,7 +306,7 @@ void power_tick_s(void)
 				{
 					++power_counter;
 				}
-				else if (pv > BATTERY_NEED_CHARGING_MV)
+				else if (pv > BATTERY_LOW_BATTERY_WARNING_MV)
 				{
 					// Battery need charging again
 					uart_print_P(PSTR("power charging\r\n"));
@@ -319,5 +335,10 @@ void power_tick_s(void)
 
 
     avr_wtd_reset_power();
+}
+
+uint16_t power_get_voltage_mV()
+{
+	return voltage_mV;
 }
 

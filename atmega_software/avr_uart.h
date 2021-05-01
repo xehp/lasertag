@@ -44,7 +44,7 @@ History
 // size of buffer for incoming Data
 // NOTE it must be power of 2: 1,2,4,8,16,32,64,128 or 256 bytes
 #ifndef UART_RX_BUFFER_SIZE
-#define UART_RX_BUFFER_SIZE 64
+#define UART_RX_BUFFER_SIZE 32
 #endif
 
 // size of buffer for outgoing data
@@ -68,11 +68,11 @@ void uart_init(void);
 
 // This will tell if there is data available in the receive buffer.
 // Returns Number of of available bytes in RX buffer
-unsigned char uart_get_nbytes_in_read_buffer(void);
+unsigned char uart_get_bytes_in_read_buffer(void);
 
 
 // Returns Number of unsent bytes in TX buffer
-unsigned char uart_get_n_unsent_bytes_in_write_buffer(void);
+unsigned char uart_get_bytes_in_write_buffer(void);
 
 
 // Returns Number of bytes that can be written without blocking

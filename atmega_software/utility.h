@@ -1,7 +1,7 @@
 /*
-power.h
+utility.h
 
-Provide miscellaneous functions.
+Provide miscellaneous utility functions.
 
 Copyright (C) 2021 Henrik Bjorkman www.eit.se/hb.
 
@@ -22,8 +22,8 @@ History
 2021-05-01 Created reusing code from other projects. /Henrik
 */
 
-#ifndef MISC_H
-#define MISC_H
+#ifndef UTILITY_H
+#define UTILITY_H
 
 #include <stdint.h>
 

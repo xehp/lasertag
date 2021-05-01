@@ -40,10 +40,11 @@ History
 #include "power.h"
 #include "beep.h"
 #include "radio.h"
+#include "cmd.h"
 #include "version.h"
 
 
-const uint32_t ignore_mask = 0x76;
+const uint32_t ignore_mask = 0x77;
 
 int16_t main_timer_ms=0;
 int32_t main_counter_s=0;
@@ -97,21 +98,20 @@ int main( void )
 	EXTERNAL_IR_INIT();
 	INTERNAL_IR_INIT();
 
-
-	game_init();
-	avr_delay_ms_16(200);
-
 	power_init();
 	avr_delay_ms_16(200);
-
 
 	beep_init();
 	avr_delay_ms_16(200);
 
-
 	radio_init();
 	avr_delay_ms_16(200);
 
+	game_init();
+	avr_delay_ms_16(200);
+
+	cmd_init();
+	avr_delay_ms_16(200);
 
 	// All init is done, get ready to run main loop.
 	UART_PRINT_P("main\r\n");
@@ -122,22 +122,7 @@ int main( void )
 	{
 		// Put all urgent tasks here. Things that need to be called more than once per second.
 
-		int ch = uart_getchar();
-		if (ch >= 0)
-		{
-			// Just echo input. Change small letters to capital just to make
-			// it obvious that this feature works.
-			if (ch == 0x1b)
-			{
-				// esc, do eternal loop until we get reset by WTD.
-				for(;;);
-			}
-			else if ((ch>='a') && (ch<='z'))
-			{
-				ch -= 'a' - 'A';
-			}
-			uart_putchar(ch);
-		}
+		cmd_process();
 
 		radio_process();
 

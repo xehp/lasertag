@@ -50,16 +50,19 @@ void game_process(void)
 {
 	const uint16_t t = avr_systime_ms_16();
 
-	uint8_t tmp[RADIO_PAYLOAD_SIZE] = {0};
-	const uint8_t n = radio_receive_data(tmp, sizeof(tmp));
-	if (n>0)
+	if (uart_get_free_space_in_write_buffer() >= (UART_TX_BUFFER_SIZE/2))
 	{
-		UART_PRINT_P("radio ");
-		for (uint8_t i=0; i<sizeof(tmp); ++i)
+		uint8_t tmp[RADIO_PAYLOAD_SIZE] = {0};
+		const uint8_t n = radio_receive_data(tmp, sizeof(tmp));
+		if (n>0)
 		{
-			uart_print_hex8(tmp[i]);
+			UART_PRINT_P("radio ");
+			for (uint8_t i=0; i<sizeof(tmp); ++i)
+			{
+				uart_print_hex8(tmp[i]);
+			}
+			UART_PRINT_P("\r\n");
 		}
-		UART_PRINT_P("\r\n");
 	}
 
 	switch(internal_ir_state)

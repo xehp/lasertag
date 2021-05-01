@@ -1,7 +1,7 @@
 /*
-power.h
+cmd.h
 
-Provide functions to supervise the battery.
+Provide command line functions.
 
 Copyright (C) 2021 Henrik Bjorkman www.eit.se/hb.
 
@@ -19,14 +19,17 @@ General Public License for more details.
 
 History
 
-2021-04-20 Created. /Henrik
+2021-05-01 Created. /Henrik
 */
 
-#ifndef POWER_H
-#define POWER_H
+#ifndef CMD_H
+#define CMD_H
 
-void power_init(void);
-void power_tick_s(void);
-uint16_t power_get_voltage_mV(void);
+#include <stdint.h>
+
+void cmd_init(void);
+void cmd_process(void);
+
+
 
 #endif

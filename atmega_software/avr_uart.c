@@ -297,7 +297,7 @@ void uart_putchar(char ch)
 
 
 
-unsigned char uart_get_nbytes_in_read_buffer () 
+unsigned char uart_get_bytes_in_read_buffer () 
 {
 #ifdef USE_INTERRUPT_FOR_RECEIVE
     return ( uartRxTail - uartRxHead ) & UART_RX_BUFFER_MASK;
@@ -312,7 +312,7 @@ unsigned char uart_get_nbytes_in_read_buffer ()
 
 
 
-unsigned char uart_get_n_unsent_bytes_in_write_buffer () 
+unsigned char uart_get_bytes_in_write_buffer () 
 {
 #ifdef USE_INTERRUPT_FOR_TRANSMIT
     return ( uartTxTail - uartTxHead ) & UART_TX_BUFFER_MASK;
@@ -330,7 +330,7 @@ unsigned char uart_get_n_unsent_bytes_in_write_buffer ()
 unsigned char uart_get_free_space_in_write_buffer () 
 {
 #ifdef USE_INTERRUPT_FOR_TRANSMIT
-  return((UART_TX_BUFFER_SIZE-1)-uart_get_n_unsent_bytes_in_write_buffer());
+  return((UART_TX_BUFFER_SIZE-1)-uart_get_bytes_in_write_buffer());
 #else
     if (UART_OUTBUF_EMPTY())
     {

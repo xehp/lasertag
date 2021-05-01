@@ -285,6 +285,7 @@ void avr_error_handler_P(const char *pgm_addr, uint16_t errorCode)
 	{
 		uart_print_P(PSTR("\r\n"));
 		uart_print_P(pgm_addr);
+		uart_putchar(' ');
 		uart_print_hex16(errorCode);
 		avr_blink(8);
 		avr_delay_ms_16(1000);
