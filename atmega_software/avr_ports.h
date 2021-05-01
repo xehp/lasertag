@@ -40,7 +40,7 @@ History
 #ifdef RELAY_ACTIVE_HIGH
 #define RELAY_ON() RELAY_PORT |= _BV(RELAY_BIT);
 #define RELAY_OFF() RELAY_PORT &= ~_BV(RELAY_BIT);
-#else
+#elif defined RELAY_ACTIVE_LOW
 #define RELAY_ON() RELAY_PORT &= ~_BV(RELAY_BIT);
 #define RELAY_OFF() RELAY_PORT |= _BV(RELAY_BIT);
 #endif
@@ -57,7 +57,7 @@ History
 #ifdef HIT_LEDS_ACTIVE_HIGH
 #define HIT_LEDS_ON() HIT_LEDS_PORT |= _BV(HIT_LEDS_BIT);
 #define HIT_LEDS_OFF() HIT_LEDS_PORT &= ~_BV(HIT_LEDS_BIT);
-#else
+#elif defined HIT_LEDS_ACTIVE_LOW
 #define HIT_LEDS_ON() HIT_LEDS_PORT &= ~_BV(HIT_LEDS_BIT);
 #define HIT_LEDS_OFF() HIT_LEDS_PORT |= _BV(HIT_LEDS_BIT);
 #endif
@@ -74,7 +74,7 @@ History
 #ifdef LASER_ACTIVE_HIGH
 #define LASER_ON() LASER_PORT |= _BV(LASER_BIT);
 #define LASER_OFF() LASER_PORT &= ~_BV(LASER_BIT);
-#else
+#elif defined LASER_ACTIVE_LOW
 #define LASER_ON() LASER_PORT &= ~_BV(LASER_BIT);
 #define LASER_OFF() LASER_PORT |= _BV(LASER_BIT);
 #endif
@@ -90,7 +90,7 @@ History
 #ifdef VIB_ACTIVE_HIGH
 #define VIB_ON() VIB_PORT |= _BV(VIB_BIT);
 #define VIB_OFF() VIB_PORT &= ~_BV(VIB_BIT);
-#else
+#elif defined VIB_ACTIVE_LOW
 #define VIB_ON() VIB_PORT &= ~_BV(VIB_BIT);
 #define VIB_OFF() VIB_PORT |= _BV(VIB_BIT);
 #endif
@@ -98,7 +98,7 @@ History
 #define TRIGGER_INIT() {TRIGGER_PORT |= _BV(TRIGGER_BIT);} // activate internal pull up
 #ifdef TRIGGER_ACTIVE_HIGH
 #define TRIGGER_READ() (TRIGGER_PORT_PIN & _BV(TRIGGER_BIT))
-#else
+#elif defined TRIGGER_ACTIVE_LOW
 #define TRIGGER_READ() ((TRIGGER_PORT_PIN & _BV(TRIGGER_BIT)) == 0)
 #endif
 
@@ -106,14 +106,14 @@ History
 #define INTERNAL_IR_INIT() {INTERNAL_IR_PORT |= _BV(INTERNAL_IR_BIT);} // activate internal pull up
 #ifdef INTERNAL_IR_ACTIVE_HIGH
 #define INTERNAL_IR_READ() (INTERNAL_IR_PIN & _BV(INTERNAL_IR_BIT))
-#else
+#elif defined INTERNAL_IR_ACTIVE_LOW
 #define INTERNAL_IR_READ() ((INTERNAL_IR_PIN & _BV(INTERNAL_IR_BIT)) == 0)
 #endif
 
 #define EXTERNAL_IR_INIT() {EXTERNAL_IR_PORT |= _BV(EXTERNAL_IR_BIT);} // activate internal pull up
 #ifdef EXTERNAL_IR_ACTIVE_HIGH
 #define EXTERNAL_IR_READ() (EXTERNAL_IR_PIN & _BV(EXTERNAL_IR_BIT))
-#else
+#elif defined EXTERNAL_IR_ACTIVE_LOW
 #define EXTERNAL_IR_READ() ((EXTERNAL_IR_PIN & _BV(EXTERNAL_IR_BIT)) == 0)
 #endif
 
@@ -146,7 +146,7 @@ History
 #ifdef RADIO_CE_ACTIVE_HIGH
 #define RADIO_CE_ON() RADIO_CE_PORT |= _BV(RADIO_CE_BIT);
 #define RADIO_CE_OFF() RADIO_CE_PORT &= ~_BV(RADIO_CE_BIT);
-#else
+#elif defined RADIO_CE_ACTIVE_LOW
 #define RADIO_CE_ON() RADIO_CE_PORT &= ~_BV(RADIO_CE_BIT);
 #define RADIO_CE_OFF() RADIO_CE_PORT |= _BV(RADIO_CE_BIT);
 #endif
@@ -156,7 +156,7 @@ History
 #ifdef RADIO_CSN_ACTIVE_HIGH
 #define RADIO_CSN_ON() RADIO_CSN_PORT |= _BV(RADIO_CSN_BIT);
 #define RADIO_CSN_OFF() RADIO_CSN_PORT &= ~_BV(RADIO_CSN_BIT);
-#else
+#elif defined RADIO_CSN_ACTIVE_LOW
 #define RADIO_CSN_ON() RADIO_CSN_PORT &= ~_BV(RADIO_CSN_BIT);
 #define RADIO_CSN_OFF() RADIO_CSN_PORT |= _BV(RADIO_CSN_BIT);
 #endif
@@ -164,7 +164,7 @@ History
 #define RADIO_IRQ_INIT() {RADIO_IRQ_PORT |= _BV(RADIO_IRQ_BIT);} // activate internal pull up
 #ifdef RADIO_IRQ_ACTIVE_HIGH
 #define RADIO_IRQ_READ() (RADIO_IRQ_PORT_PIN & _BV(RADIO_IRQ_BIT))
-#else
+#elif defined RADIO_IRQ_ACTIVE_LOW
 #define RADIO_IRQ_READ() ((RADIO_IRQ_PORT_PIN & _BV(RADIO_IRQ_BIT)) == 0)
 #endif
 

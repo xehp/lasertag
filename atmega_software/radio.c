@@ -476,6 +476,8 @@ void radio_init(void)
 	radio_fifo_init(&receive_fifo);
 	radio_fifo_init(&transmit_fifo);
 
+
+
     RADIO_CE_OFF();
     RADIO_CE_ENABLE();
     AVR_DELAY_US(20);
@@ -483,6 +485,10 @@ void radio_init(void)
     RADIO_CSN_OFF();
     RADIO_CSN_ENABLE();
     AVR_DELAY_US(20);
+
+	// TODO This line should not be needed but something disables the relay pin.
+	//RELAY_ENABLE();
+
 
     RADIO_IRQ_INIT();
     AVR_DELAY_US(20);

@@ -34,19 +34,22 @@ References:
 #include "avr_uart.h"
 #include "avr_adc.h"
 #include "avr_ports.h"
+#include "utility.h"
 #include "power.h"
 
+// At 3.425 Volt got ADC value 0x024c (588)
+#define MicroVolt_PER_ADC_UNIT 5825
 // Its about 154 ADC steps per Volt
 // TODO We need to let ADC use its internal voltage reference.
-#define BATTERY_DEPLETED 520
-#define BATTERY_NEED_CHARGING 550
-#define BATTERY_FULL 610
+#define BATTERY_DEPLETED_MV 3300
+#define BATTERY_NEED_CHARGING_MV 3500
+#define BATTERY_FULL_MV 3900
 #define BATTERY_TIMEOUT 0xFFFF
 
 enum {
 	POWER_MEASURING_IDLE_STATE,
 	POWER_MEASURING_STARTUP_STATE,
-	POWER_MEASURING_NORMAL_STATE,
+	POWER_MEASURING_CHARGING_STATE,
 	POWER_MEASURING_FULL_STATE,
 	POWER_MEASURING_DEPLETED_STATE,
 	POWER_MEASURING_FAIL_STATE,
@@ -54,7 +57,7 @@ enum {
 
 static int8_t power_state = 0;
 static int8_t power_counter = 0;
-static uint16_t log_voltage = 0;
+static uint16_t log_voltage_mV = 0;
 //static int16_t timer_ms = 0;
 
 // Find median value of the latest 3 values.
@@ -101,15 +104,17 @@ void power_init(void)
 
 	AVR_ADC_init();
 
-	RELAY_ENABLE();
-	RELAY_ON();
+	// Relay output is initialized in avr_init.
+	//RELAY_ENABLE();
+	//RELAY_ON();
 
 	//timer_ms = avr_systime_ms_16() + 1000;
 }
 
 // Time factor determines over how many samples we make the rolling mean value.
-#define MEASURING_FILTER_SCALE_FACTOR 16
-#define MEASURING_FILTER_TIME_FACTOR 32
+// A higher value for filter time gives a better but slower value so its a compromise.
+#define MEASURING_FILTER_TIME_FACTOR 64
+#define MEASURING_FILTER_SCALE_FACTOR 64
 
 static uint32_t filtered_voltage_scaled = 0;
 static uint32_t filtered_values_available = 0;
@@ -120,18 +125,19 @@ static uint16_t calcRollingMeanValue(uint16_t latestValue)
 	if (filtered_values_available < MEASURING_FILTER_TIME_FACTOR)
 	{
 		filtered_values_available++;
-		const uint32_t latestValueScaled = latestValue*MEASURING_FILTER_SCALE_FACTOR;
-		const uint32_t filteredChangeScaledXTime = (filtered_voltage_scaled * (filtered_values_available-1)) + latestValueScaled;
+		const uint64_t latestValueScaled = latestValue*MEASURING_FILTER_SCALE_FACTOR;
+		const uint64_t filteredChangeScaledXTime = (filtered_voltage_scaled * (filtered_values_available-1)) + latestValueScaled;
 		filtered_voltage_scaled = filteredChangeScaledXTime / filtered_values_available;
 	}
 	else
 	{
-		const uint32_t latestValueScaled = latestValue*MEASURING_FILTER_SCALE_FACTOR;
-		const uint32_t filteredChangeScaledXTime = (filtered_voltage_scaled * (MEASURING_FILTER_TIME_FACTOR-1)) + latestValueScaled;
+		const uint64_t latestValueScaled = latestValue*MEASURING_FILTER_SCALE_FACTOR;
+		const uint64_t filteredChangeScaledXTime = (filtered_voltage_scaled * (MEASURING_FILTER_TIME_FACTOR-1)) + latestValueScaled;
 		filtered_voltage_scaled = filteredChangeScaledXTime / MEASURING_FILTER_TIME_FACTOR;
 	}
 	return filtered_voltage_scaled / MEASURING_FILTER_SCALE_FACTOR;
 }
+
 
 /**
  * Returns 0xFFFF if no value was available.
@@ -147,15 +153,27 @@ static uint16_t read_adc(void)
 
 		const uint16_t fv = calcRollingMeanValue(pv);
 
-		if (log_voltage != fv)
+		const uint16_t mv = ((uint32_t)fv * MicroVolt_PER_ADC_UNIT) / 1000L;
+
+		if (log_voltage_mV != mv)
 		{
-			uart_print_P(PSTR("v "));
+
+			char tmp[32];
+			utility_lltoa(mv, tmp, 10);
+
+			uart_print_P(PSTR("power "));
+			/*uart_print_hex8(power_state);
+			uart_putchar(' ');
 			uart_print_hex16(fv);
-			uart_print_P(PSTR("\r\n"));
-			log_voltage = fv;
+			uart_putchar(' ');
+			uart_print_hex16(mv);
+			uart_putchar(' ');*/
+			uart_print(tmp);
+			uart_print_P(PSTR(" mV\r\n"));
+			log_voltage_mV = mv;
 		}
 		AVR_ADC_startSampling();
-		return fv;
+		return mv;
 	}
 	else
 	{
@@ -169,14 +187,17 @@ static uint16_t read_adc(void)
 
 void power_tick_s(void)
 {
-	/*const int16_t t = avr_systime_ms_16();
-	const int16_t d = t - timer_ms;
-
-	if (d<0)
+	// This is just debugging, remove later.
 	{
-		return;
+		char tmp[32];
+		utility_lltoa(log_voltage_mV, tmp, 10);
+
+		uart_print_P(PSTR("power state "));
+		uart_print_hex4(power_state);
+		uart_putchar(' ');
+		uart_print(tmp);
+		uart_print_P(PSTR(" mV\r\n"));
 	}
-	timer_ms = t+100;*/
 
     switch (power_state)
     {
@@ -186,15 +207,18 @@ void power_tick_s(void)
 			// Initial state, start an ADC conversion and go to startup state.
 			RELAY_ON();
 			AVR_ADC_startSampling();
-			uart_print_P(PSTR("power\r\n"));
+			uart_print_P(PSTR("power startup\r\n"));
 			power_counter = 0;
 			power_state = POWER_MEASURING_STARTUP_STATE;
 			break;
 		}
 		case POWER_MEASURING_STARTUP_STATE:
 		{
+			// TODO This line should not be needed but something disables the relay pin.
+			//RELAY_ENABLE();
+
 			// Wait in this state with relay on for a while so that things are stable.
-			// Then go to normal state.
+			// Then go to normal/charging state.
 			RELAY_ON();
 			uint16_t pv = read_adc();
 			if (pv != BATTERY_TIMEOUT)
@@ -205,30 +229,30 @@ void power_tick_s(void)
 				}
 				else
 				{
-					uart_print_P(PSTR("charge\r\n"));
+					uart_print_P(PSTR("power charging\r\n"));
 					power_counter = 0;
-					power_state=POWER_MEASURING_NORMAL_STATE;
+					power_state=POWER_MEASURING_CHARGING_STATE;
 				}
 			}
 			break;
 		}
-		case POWER_MEASURING_NORMAL_STATE:
+		case POWER_MEASURING_CHARGING_STATE:
 		{
 			RELAY_ON();
 			uint16_t pv = read_adc();
 			if (pv != BATTERY_TIMEOUT)
 			{
-				if (pv > BATTERY_FULL)
+				if (pv > BATTERY_FULL_MV)
 				{
 					// Battery must be full
-					uart_print_P(PSTR("full\r\n"));
+					uart_print_P(PSTR("power full\r\n"));
 					power_counter = 0;
 					power_state=POWER_MEASURING_FULL_STATE;
 				}
-				if (pv < BATTERY_DEPLETED)
+				if (pv < BATTERY_DEPLETED_MV)
 				{
 					// Battery is empty, turn off
-					uart_print_P(PSTR("empty\r\n"));
+					uart_print_P(PSTR("power depleted\r\n"));
 					power_counter = 0;
 					power_state=POWER_MEASURING_DEPLETED_STATE;
 				}
@@ -246,12 +270,12 @@ void power_tick_s(void)
 				{
 					++power_counter;
 				}
-				else if (pv < BATTERY_NEED_CHARGING)
+				else if (pv < BATTERY_NEED_CHARGING_MV)
 				{
 					// Battery need charging again
-					uart_print_P(PSTR("recharge\r\n"));
+					uart_print_P(PSTR("power charging\r\n"));
 					power_counter = 0;
-					power_state=POWER_MEASURING_NORMAL_STATE;
+					power_state=POWER_MEASURING_CHARGING_STATE;
 				}
 			}
 			break;
@@ -266,12 +290,12 @@ void power_tick_s(void)
 				{
 					++power_counter;
 				}
-				else if (pv > BATTERY_NEED_CHARGING)
+				else if (pv > BATTERY_NEED_CHARGING_MV)
 				{
 					// Battery need charging again
-					uart_print_P(PSTR("recharge\r\n"));
+					uart_print_P(PSTR("power charging\r\n"));
 					power_counter = 0;
-					power_state=POWER_MEASURING_NORMAL_STATE;
+					power_state=POWER_MEASURING_CHARGING_STATE;
 				}
 			}
 			break;
@@ -285,13 +309,14 @@ void power_tick_s(void)
 			}
 			else
 			{
-				uart_print_P(PSTR("restart\r\n"));
+				uart_print_P(PSTR("power restart\r\n"));
 				AVR_ADC_init();
 				power_state=POWER_MEASURING_IDLE_STATE;
 			}
 			break;
 		}
     }
+
 
     avr_wtd_reset_power();
 }

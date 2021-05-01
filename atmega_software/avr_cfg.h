@@ -64,14 +64,12 @@ History
 
 
 // Configuration of IO pins
-// Uncomment ACTIVE_HIGH macros if input/output is active low.
 
-
+// Relay is on PB0 and i is active low
 #define RELAY_DDR DDRB
 #define RELAY_PORT PORTB
 #define RELAY_BIT PB0
-//#define RELAY_ACTIVE_HIGH
-
+#define RELAY_ACTIVE_LOW
 
 // Output for hit indication LEDs, PB2
 #define HIT_LEDS_DDR DDRB
@@ -105,22 +103,21 @@ History
 #define RADIO_CSN_DDR DDRD
 #define RADIO_CSN_PORT PORTD
 #define RADIO_CSN_BIT PD4
-//#define RADIO_CSN_ACTIVE_HIGH
+#define RADIO_CSN_ACTIVE_LOW
 
 
 // Radio IRQ active low on PD2
 #define RADIO_IRQ_PORT PORTD
 #define RADIO_IRQ_PORT_PIN PIND
 #define RADIO_IRQ_BIT PD2
-//#define RADIO_IRQ_ACTIVE_HIGH
-
+#define RADIO_IRQ_ACTIVE_LOW
 
 
 // Input for trigger button, PC2
 #define TRIGGER_PORT PORTC
 #define TRIGGER_PORT_PIN PINC
 #define TRIGGER_BIT PC2
-//#define TRIGGER_ACTIVE_HIGH
+#define TRIGGER_ACTIVE_LOW
 // NOTE in next HW version 2021-04-24 and later trigger will be active high
 
 
@@ -128,13 +125,13 @@ History
 #define INTERNAL_IR_PORT PORTC
 #define INTERNAL_IR_PIN PINC
 #define INTERNAL_IR_BIT PC3
-//#define INTERNAL_IR_ACTIVE_HIGH
+#define INTERNAL_IR_ACTIVE_LOW
 
 // Input for external IR detector, PC1
 #define EXTERNAL_IR_PORT PORTC
 #define EXTERNAL_IR_PIN PINC
 #define EXTERNAL_IR_BIT PC1
-//#define EXTERNAL_IR_ACTIVE_HIGH
+#define EXTERNAL_IR_ACTIVE_LOW
 
 
 

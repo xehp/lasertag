@@ -33,8 +33,8 @@ CFLAGS=-g -mmcu=$(MCU) -Wall -Werror -Wstrict-prototypes -Os -mcall-prologues
 
 
 # Here are avr driver files listed (hopefully don't need to be changed so often).
-AVR_OBJECT_FILES=avr_tmr0.o avr_tmr1.o avr_tmr2.o avr_uart.o avr_sys.o avr_adc.o power.o beep.o game.o avr_spi.o radio.o
-AVR_HEADER_FILES=avr_cfg.h avr_tmr0.h avr_tmr1.h avr_tmr2.h avr_uart.h avr_sys.h avr_adc.h power.h beep.h game.h avr_spi.h radio.h
+AVR_OBJECT_FILES=avr_tmr0.o avr_tmr1.o avr_tmr2.o avr_uart.o avr_sys.o avr_adc.o power.o beep.o game.o avr_spi.o radio.o utility.o
+AVR_HEADER_FILES=avr_cfg.h avr_tmr0.h avr_tmr1.h avr_tmr2.h avr_uart.h avr_sys.h avr_adc.h power.h beep.h game.h avr_spi.h radio.h utility.h avr_ports.h
 HEADER_FILES=Makefile $(AVR_HEADER_FILES) $(APPLICATION_HEADER_FILES)
 
 

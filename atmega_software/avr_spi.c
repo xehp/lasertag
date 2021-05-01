@@ -57,17 +57,18 @@ void avr_spi_init(void)
     // Our device is OK up to 8 Mz, Ref [2] "Features" "4-pin SPI interface with maximum 8 MHzclock rate"
 
 	// MOSI -> PB3, MISO -> PB4, SCK -> PB5
-	// SS? PB2 was needed for OC1B in our case so not available here. Should be OK to have it as output
-	// for something else, Ref [2] 19.3.2 Master Mode "If SS is configured as an output, the pin is a general output pin which does not affect the SPI system."
+	// SS: PB2 was needed for OC1B in our case so not available here. Should be OK to have it as output for something else, just be sure it is output.
+	// Ref [2] 19.3.2 Master Mode "If SS is configured as an output, the pin is a general output pin which does not affect the SPI system."
 	// For CE, CSN, IRQ used see avr_cfg.h.
 
-	/* Set MOSI and SCK output, all others input */
+	/* Set MOSI, SCK and SS as output */
 	// Ref [1] Chapter 19.2 "DDR_SPI in the examples must be replaced by the actual..."
 	//DDR_SPI = (1<<DD_MOSI)|(1<<DD_SCK);
-	DDRB = (1<<DDB2) | (1<<DDB3) | (1<<DDB5);
+	DDRB |= (1<<DDB2) | (1<<DDB3) | (1<<DDB5);
 
 	/* Enable SPI, Master, set clock rate fck/16 */
 	// TODO Use fck/4
 	SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);
+
 }
 

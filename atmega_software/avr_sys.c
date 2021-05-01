@@ -119,6 +119,10 @@ void avr_wtd_reset_and_idle(void)
 		wdt_reset();
 		power_wtd--;
 	}
+	else
+	{
+		RELAY_OFF();
+	}
 
 
 	// enable sleep
@@ -292,21 +296,18 @@ void avr_error_handler_P(const char *pgm_addr, uint16_t errorCode)
 // set up hardware (port directions, registers etc.)
 void avr_init() 
 {
+	wdt_enable(WDTO_2S);
 	// Change WDT settings to give it more time such as 8 seconds.
 	// Idea being that only power_tick_s shall issue wdt_reset() after this setting.
 	// Ref [1] Chapter 11.9.2
 	// Perhaps this code shall be placed in avr_init() in file avr_sys.c?
 	/*UART_PRINT_P("sys_init\r\n");
 	wdt_reset();
-	WDTCSR = 0x2F;
-	RELAY_ON();
-	RELAY_ENABLE();*/
+	WDTCSR = 0x2F;*/
 	// TODO After enabling this find and remove all wdt_reset except the one here and in
 	// power_tick_s. Same with #include <avr/wdt.h>
 	// TODO The above did nothing, don't know why so commented it out.
 	// Will make an extra slow watchdog timer just for power.
-
-	wdt_enable(WDTO_2S);
 
 
 	// Analog comparator
@@ -323,6 +324,9 @@ void avr_init()
 #error
 #endif
 
+	RELAY_ON();
+	RELAY_ENABLE();
+	power_wtd=-1;
 	avr_wtd_reset_and_idle();
 }
 

@@ -84,7 +84,10 @@ unsigned char uart_get_overflow_counter(void);
 
 // write n bytes of *data into transmit buffer and start transmitting
 // If there is not room for all in out buffer this call will block until there is room.
-void uart_write(char *data_ptr, int n_data);
+void uart_write(char *data_ptr, int data_len);
+
+
+void uart_print(char *str);
 
 // Prints a string from program memory.
 void uart_print_P(const char *pgm_addr);

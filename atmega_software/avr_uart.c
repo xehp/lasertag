@@ -490,6 +490,15 @@ void uart_write(char *data_ptr, int n_data)
 }
 
 
+void uart_print(char *str)
+{
+  while( *str != 0)
+  {
+    uart_putchar(*str);
+    str++;
+  }
+}
+
 
 
 /* debug_P */
