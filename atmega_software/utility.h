@@ -31,5 +31,6 @@ History
 // NOTE! buffer must be large enough! 32 bytes should do, not less.
 char* utility_lltoa(int64_t num, char* str, int base);
 
+int64_t utility_atoll(const char* str);
 
 #endif

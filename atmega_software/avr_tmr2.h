@@ -51,6 +51,13 @@ void avr_tmr2_init(void);
 int64_t avr_tmr2_get_tick_64(void);
 int16_t avr_tmr2_get_tick_16(void);
 
+int8_t tx1_fifo_is_full(void);
+void tx1_fifo_put(uint8_t bit);
+int8_t rx1_fifo_is_empty(void);
+int8_t rx1_fifo_take(void);
+int8_t rx2_fifo_is_empty(void);
+int8_t rx2_fifo_take(void);
+
 #else
 
 // set up hardware (port directions, registers etc.)

@@ -26,6 +26,7 @@ History
 #include "avr_cfg.h"
 #include "avr_sys.h"
 #include "avr_uart.h"
+#include "avr_eeprom.h"
 #include "utility.h"
 #include "power.h"
 #include "cmd.h"
@@ -54,6 +55,21 @@ static void interpret_command(void)
 
 	switch (*ptr)
 	{
+		case 'i':
+		{
+			char tmp[32];
+			utility_lltoa(ee.ID, tmp, 10);
+			uart_print_P(PSTR("ID "));
+			uart_print(tmp);
+			uart_print_P(PSTR("\r\n"));
+			break;
+		}
+		case 'I':
+		{
+			ee.ID = utility_atoll(ptr+1);
+			uart_print_P(PSTR("OK\r\n"));
+			break;
+		}
 		case 'o':
 		{
 			avr_error_handler_P(PSTR("power off"), __LINE__);
@@ -64,6 +80,11 @@ static void interpret_command(void)
 			uart_print_P(PSTR("reboot\r\n"));
 			// Do eternal loop until we get reset by WTD.
 			for(;;);
+			break;
+		}
+		case 's':
+		{
+			eepromSave();
 			break;
 		}
 		case 'v':

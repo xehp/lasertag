@@ -102,7 +102,6 @@ History
 #define TRIGGER_READ() ((TRIGGER_PORT_PIN & _BV(TRIGGER_BIT)) == 0)
 #endif
 
-
 #define INTERNAL_IR_INIT() {INTERNAL_IR_PORT |= _BV(INTERNAL_IR_BIT);} // activate internal pull up
 #ifdef INTERNAL_IR_ACTIVE_HIGH
 #define INTERNAL_IR_READ() (INTERNAL_IR_PIN & _BV(INTERNAL_IR_BIT))

@@ -36,6 +36,7 @@ History
 #include "avr_ports.h"
 #include "avr_tmr0.h"
 #include "avr_tmr1.h"
+#include "avr_eeprom.h"
 #include "game.h"
 #include "power.h"
 #include "beep.h"
@@ -44,14 +45,14 @@ History
 #include "version.h"
 
 
-const uint32_t ignore_mask = 0x77;
+//static const uint32_t ignore_mask = 0x00070077;
 
 int16_t main_timer_ms=0;
 int32_t main_counter_s=0;
 int8_t main_state=0;
-uint32_t log_pin = 0;
+//static uint32_t log_pin = 0;
 
-static void log_ports(void)
+/*static void log_ports(void)
 {
 	const uint32_t b = PINB;
 	const uint32_t c = PINC;
@@ -64,7 +65,7 @@ static void log_ports(void)
 		UART_PRINT_P("\r\n");
 		log_pin = p;
 	}
-}
+}*/
 
 int main( void ) 
 {
@@ -98,17 +99,22 @@ int main( void )
 	EXTERNAL_IR_INIT();
 	INTERNAL_IR_INIT();
 
+	eepromLoad();
+
 	power_init();
 	avr_delay_ms_16(200);
 
 	beep_init();
 	avr_delay_ms_16(200);
 
+
 	radio_init();
 	avr_delay_ms_16(200);
 
+
 	game_init();
 	avr_delay_ms_16(200);
+
 
 	cmd_init();
 	avr_delay_ms_16(200);
@@ -128,7 +134,7 @@ int main( void )
 
 		game_process();
 
-		log_ports();
+		//log_ports();
 
 		switch(main_state)
 		{
@@ -152,7 +158,7 @@ int main( void )
 			case 1:
 			{
 				// log digital inputs
-				log_ports();
+				//log_ports();
 				++main_state;
 				break;
 			}

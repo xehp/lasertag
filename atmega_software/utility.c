@@ -85,3 +85,33 @@ char* utility_lltoa(int64_t num, char* str, int base)
 
     return str;
 }
+
+
+
+int64_t utility_atoll(const char* str)
+{
+    int64_t value = 0;
+
+    while (*str == ' ')
+    {
+    	str++;
+    }
+
+    if (*str == '-')
+    {
+    	str++;
+    	return -utility_atoll(str);
+    }
+    else if (*str == '+')
+    {
+    	str++;
+	}
+
+    while ((*str >= '0') && (*str <= '9'))
+    {
+    	value = value*10 + (*str -'0');
+    	str++;
+    }
+
+    return value;
+}

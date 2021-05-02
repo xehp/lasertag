@@ -28,6 +28,8 @@ TODO Use Atmega internal temp sensor so we can avoid charging at cold temp.
 
 References:
 [1] https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061B.pdf
+[2] https://batteryuniversity.com/learn/article/charging_lithium_ion_batteries
+[3] https://batteryuniversity.com/learn/article/confusion_with_voltages
 */
 
 #include <avr/pgmspace.h>
@@ -43,18 +45,18 @@ References:
 // At 3.425 Volt got ADC value 0x024c (588)
 #define MicroVolt_PER_ADC_UNIT 5825
 
-// https://batteryuniversity.com/learn/article/charging_lithium_ion_batteries
 // Typical LiIon can be charged to 4.2 Volt (some unusual ones only 4.1 Volt).
 // A 50 mV margin from that is recommended so we could use 4150 mV.
 // Its only good for the Lithium-ion to not fully charge it (and not fully deplete it).
 // We probably have plenty of capacity so we can keep some extra margin.
 // We will not optimize performance yet so 4.05 Volt (4050 mV) will do for now.
+// Ref [2]
 #define BATTERY_FULL_MV 4050
 
-// https://batteryuniversity.com/learn/article/confusion_with_voltages
 // Typically LiIon is empty at 2.8 to 3.0 Volt.
 // We choose a conservative value and some margin.
 // If voltage drop to 3.1 Volt (or so) we consider it depleted.
+// Ref [3]
 #define BATTERY_DEPLETED_MV 3100
 
 // We need 3.3 Volt and there is some loss in the voltage regulator.

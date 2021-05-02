@@ -48,11 +48,42 @@ volatile int64_t timer0count;
 
 void avr_tmr1_pwm_on(void)
 {
+    // not inverting mode
+    // Fast PWM mode using ICR1 as TOP
+	/*
+    Clock select
+    0 No clock (stop)
+    1 No prescaling
+    2 clk/8
+    3 clk/64
+    4 clk/256
+    5 clk/1024
+    6 External source on falling edge.
+    7 External source on rising edge.
+    */
+    TCCR1A |= (1 << COM1A1) | (1 << COM1B1) | (1 << WGM11);
+    TCCR1B |= (1 << WGM12) | (1 << WGM13) | (1 << CS10);
+}
+
+void avr_tmr1_pwm_off(void)
+{
+    // Stop timer and release PB1
+    TCCR1A = 0;
+	TCCR1B = 0;
+	TCNT1 = 0;
+}
+
+// set up hardware (port directions, registers etc.)
+// set up timer 1
+void avr_tmr1_init(void)
+{
+	uart_print_P(PSTR("tmr1\r\n"));
 
 	// Set up timer1 so it can give 38 KHz on OC1A (AKA PB1 pin 15 of 28)
 
-	// First turn it off (might not be needed but anyway).
-	avr_tmr1_pwm_off();
+	// Signal is active high so set PB1 low and then as output.
+    PORTB &= ~(1 << DDB1);
+    DDRB |= (1 << DDB1);
 
     // top
     // TODO this needs to be calculated to get the wanted 38 KHz.
@@ -65,48 +96,6 @@ void avr_tmr1_pwm_on(void)
 
     // 75%
     OCR1B = (ICR1/4)*3;
-
-    // not inverting mode
-    TCCR1A |= (1 << COM1A1)|(1 << COM1B1);
-
-    // Fast PWM mode using ICR1 as TOP
-    TCCR1A |= (1 << WGM11);
-    TCCR1B |= (1 << WGM12)|(1 << WGM13);
-
-	/*
-    Clock select
-    0 No clock (stop)
-    1 No prescaling
-    2 clk/8
-    3 clk/64
-    4 clk/256
-    5 clk/1024
-    6 External source on falling edge.
-    7 External source on rising edge.
-    */
-    uint8_t cs = 1;
-    TCCR1B |= (cs << CS10);
-}
-
-void avr_tmr1_pwm_off(void)
-{
-	// this output is active high so set PB1 to zero
-    PORTB &= ~(1 << DDB1);
-
-    // Stop timer and release PB1
-    TCCR1A = 0;
-	TCCR1B = 0;
-}
-
-// set up hardware (port directions, registers etc.)
-// set up timer 1
-void avr_tmr1_init(void)
-{
-	uart_print_P(PSTR("tmr1\r\n"));
-
-	// PB1 low and as output
-    PORTB &= ~(1 << DDB1);
-    DDRB |= (1 << DDB1);
 }
 
 

@@ -122,16 +122,17 @@ History
 
 
 // Input for internal IR detector, PC3
+// This is active low,but also active is for zero. So lets call it active high.
 #define INTERNAL_IR_PORT PORTC
 #define INTERNAL_IR_PIN PINC
 #define INTERNAL_IR_BIT PC3
-#define INTERNAL_IR_ACTIVE_LOW
+#define INTERNAL_IR_ACTIVE_HIGH
 
 // Input for external IR detector, PC1
 #define EXTERNAL_IR_PORT PORTC
 #define EXTERNAL_IR_PIN PINC
 #define EXTERNAL_IR_BIT PC1
-#define EXTERNAL_IR_ACTIVE_LOW
+#define EXTERNAL_IR_ACTIVE_HIGH
 
 
 

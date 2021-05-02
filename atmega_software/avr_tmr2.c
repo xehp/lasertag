@@ -36,6 +36,9 @@ http://www.nongnu.org/avr-libc/user-manual/index.html
 #include <avr/pgmspace.h>
 
 #include "avr_cfg.h"
+#include "avr_ports.h"
+#include "avr_tmr0.h"
+#include "avr_tmr1.h"
 #include "avr_tmr2.h"
 
 
@@ -66,17 +69,322 @@ Clock select
 // local variables and defines, use 64 bit here to avoid issues with wrapping counters.
 volatile int64_t timer2count;
 
+
+
+// Size must be power of 2. So 2, 4, 8, 16...
+#define TX1_FIFO_SIZE 8
+
+volatile uint8_t tx1_head;
+volatile uint8_t tx1_tail;
+volatile uint8_t tx1_buff[TX1_FIFO_SIZE];
+volatile uint8_t tx1_state = 0;
+volatile uint8_t tx1_ch = 0;
+
+#define TX1_FIFO_INC(index) ((index+1)&(TX1_FIFO_SIZE-1))
+
+void tx1_fifo_init(void)
+{
+	tx1_head = 0;
+	tx1_tail = 0;
+	tx1_state = 0;
+	tx1_ch = 0;
+}
+
+int8_t tx1_fifo_is_full()
+{
+  return ((TX1_FIFO_INC(tx1_head)) == tx1_tail);
+}
+
+static int8_t tx1_fifo_is_empty(void)
+{
+  return (tx1_head == tx1_tail);
+}
+
+void tx1_fifo_put(uint8_t bit)
+{
+	if (tx1_fifo_is_full())
+	{
+		tx1_tail = TX1_FIFO_INC(tx1_tail);
+	}
+	tx1_buff[tx1_head]=bit;
+	tx1_head = TX1_FIFO_INC(tx1_head);
+}
+
+static int8_t tx1_fifo_take(void)
+{
+	/*if (tx1_fifo_is_empty())
+	{
+		return -1;
+	}*/
+	const int8_t d = tx1_buff[tx1_tail];
+	tx1_tail = TX1_FIFO_INC(tx1_tail);
+	return d;
+}
+
+// Size must be power of 2. So 2, 4, 8, 16...
+#define RX1_FIFO_SIZE 8
+
+volatile uint8_t rx1_head;
+volatile uint8_t rx1_tail;
+volatile uint8_t rx1_buff[RX1_FIFO_SIZE];
+volatile uint8_t rx1_state = 0;
+volatile uint8_t rx1_ch = 0;
+
+#define RX1_FIFO_INC(index) ((index+1)&(RX1_FIFO_SIZE-1))
+
+void rx1_fifo_init(void)
+{
+	rx1_head = 0;
+	rx1_tail = 0;
+	rx1_state = 0;
+	rx1_ch = 0;
+}
+
+static int8_t rx1_fifo_is_full(void)
+{
+  return ((RX1_FIFO_INC(rx1_head)) == rx1_tail);
+}
+
+int8_t rx1_fifo_is_empty(void)
+{
+  return (rx1_head == rx1_tail);
+}
+
+static void rx1_fifo_put(uint8_t bit)
+{
+	if (rx1_fifo_is_full())
+	{
+		rx1_tail = RX1_FIFO_INC(rx1_tail);
+	}
+	rx1_buff[rx1_head]=bit;
+	rx1_head = RX1_FIFO_INC(rx1_head);
+}
+
+int8_t rx1_fifo_take(void)
+{
+	if (rx1_fifo_is_empty())
+	{
+		return -1;
+	}
+	const int8_t d = rx1_buff[rx1_tail];
+	rx1_tail = RX1_FIFO_INC(rx1_tail);
+	return d;
+}
+
+
+// Size must be power of 2. So 2, 4, 8, 16...
+#define RX2_FIFO_SIZE 8
+
+volatile uint8_t rx2_head;
+volatile uint8_t rx2_tail;
+volatile uint8_t rx2_buff[RX2_FIFO_SIZE];
+volatile uint8_t rx2_state = 0;
+volatile uint8_t rx2_ch = 0;
+
+#define RX2_FIFO_INC(index) ((index+1)&(RX2_FIFO_SIZE-1))
+
+void rx2_fifo_init(void)
+{
+	rx2_head = 0;
+	rx2_tail = 0;
+	rx2_state = 0;
+	rx2_ch = 0;
+}
+
+static int8_t rx2_fifo_is_full(void)
+{
+	return ((RX2_FIFO_INC(rx2_head)) == rx2_tail);
+}
+
+int8_t rx2_fifo_is_empty(void)
+{
+	return (rx2_head == rx2_tail);
+}
+
+static void rx2_fifo_put(uint8_t bit)
+{
+	if (rx2_fifo_is_full())
+	{
+		rx2_tail = RX2_FIFO_INC(rx2_tail);
+	}
+	rx2_buff[rx2_head]=bit;
+	rx2_head = RX2_FIFO_INC(rx2_head);
+}
+
+int8_t rx2_fifo_take(void)
+{
+	if (rx2_fifo_is_empty())
+	{
+		return -1;
+	}
+	const int8_t bit = rx2_buff[rx2_tail];
+	rx2_tail = RX2_FIFO_INC(rx2_tail);
+	return bit;
+}
+
 // SIG_OVERFLOW0 renamed to TIMER0_OVF_vect according to:
 // http://www.nongnu.org/avr-libc/user-manual/group__avr__interrupts.html
 
+
 SIGNAL (TIMER2_OVF_vect)
 {
-  timer2count++;
+	timer2count++;
 }
 
 SIGNAL (TIMER2_COMPA_vect)
 {
-	  timer2count++;
+	timer2count++;
+
+	switch(tx1_state)
+	{
+	case 0:
+		if (!tx1_fifo_is_empty())
+		{
+			// start bit (zero)
+			IR_OUTPUT_ON();
+			tx1_ch = tx1_fifo_take();
+			tx1_state++;
+		}
+		break;
+	case 3:
+	case 6:
+	case 9:
+	case 12:
+	case 15:
+	case 18:
+	case 21:
+	case 24:
+		if (tx1_ch & 1)
+		{
+			IR_OUTPUT_OFF();
+		}
+		else
+		{
+			IR_OUTPUT_ON();
+		}
+		tx1_ch = tx1_ch >> 1;
+		tx1_state++;
+		break;
+	case 27:
+		// stop bit
+		IR_OUTPUT_OFF();
+		tx1_state++;
+		break;
+	case 30:
+		tx1_state = 0;
+		break;
+	default:
+		tx1_state++;
+	}
+
+	switch(rx1_state)
+	{
+		case 0:
+			if(INTERNAL_IR_READ())
+			{
+				// wait for a start bit (0).
+			}
+			else
+			{
+				// possible start bit (a zero)
+				rx1_ch = 0;
+				rx1_state++;
+			}
+			break;
+		case 1:
+			// middle of startbit
+			if (INTERNAL_IR_READ())
+			{
+				// It was just noise (not a start bit).
+				rx1_state = 0;
+			}
+			else
+			{
+				rx1_state++;
+			}
+			break;
+		case 4:
+		case 7:
+		case 10:
+		case 13:
+		case 16:
+		case 19:
+		case 22:
+		case 25:
+			rx1_ch = rx1_ch >> 1 | ((INTERNAL_IR_READ() ? 1 : 0) << 7);
+			rx1_state++;
+			break;
+		case 28:
+			// stop bit
+			if (INTERNAL_IR_READ())
+			{
+				rx1_fifo_put(rx1_ch);
+			}
+			else
+			{
+				// Not a valid stop bit, ignore received char.
+			}
+			rx1_state = 0;
+			break;
+		default:
+			rx1_state++;
+			break;
+	}
+
+	switch(rx2_state)
+	{
+		case 0:
+			if(EXTERNAL_IR_READ())
+			{
+				// wait for a start bit (0).
+			}
+			else
+			{
+				// possible start bit (a zero)
+				rx2_ch = 0;
+				rx2_state++;
+			}
+			break;
+		case 1:
+			// middle of startbit
+			if (EXTERNAL_IR_READ())
+			{
+				// It was just noise (not a start bit).
+				rx2_state = 0;
+			}
+			else
+			{
+				rx2_state++;
+			}
+			break;
+		case 4:
+		case 7:
+		case 10:
+		case 13:
+		case 16:
+		case 19:
+		case 22:
+		case 25:
+			rx2_ch = rx2_ch >> 1 | ((EXTERNAL_IR_READ() ? 1 : 0) << 7);
+			rx2_state++;
+			break;
+		case 28:
+			// stop bit
+			if (EXTERNAL_IR_READ())
+			{
+				rx2_fifo_put(rx2_ch);
+			}
+			else
+			{
+				// Not a valid stop bit, ignore received char.
+			}
+			rx2_state = 0;
+			break;
+		default:
+			rx2_state++;
+			break;
+	}
+
 }
 
 int64_t avr_tmr2_get_tick_64(void)
@@ -101,6 +409,11 @@ int16_t avr_tmr2_get_tick_16(void)
 // set up hardware (port directions, registers etc.)
 void avr_tmr2_init(void)
 {
+	tx1_fifo_init();
+	rx1_fifo_init();
+	rx2_fifo_init();
+
+
 	// set up timer 2
 
 	// No output from this timer so COM2A and COM2B shall remain zero.
@@ -148,6 +461,8 @@ void avr_tmr2_init(void)
 	//TIMSK2|=(1<<TOIE2); // enable interrupt
 
 	TIMSK2|=(1<<OCIE2A); // Timer/Counter2 Output Compare Match Interrupt Enable
+
+
 }
 
 
