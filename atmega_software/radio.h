@@ -29,10 +29,12 @@ History
 #define RADIO_PAYLOAD_SIZE 5
 
 #define RADIO_FIFO_SIZE 8
+#define RADIO_FIFO_MASK (RADIO_FIFO_SIZE-1)
 
 struct Radio_fifo_entry
 {
 	uint8_t data[RADIO_PAYLOAD_SIZE];
+	uint8_t length;
 };
 
 struct Radio_fifo
@@ -43,13 +45,13 @@ struct Radio_fifo
 };
 
 
-#define RADIO_FIFO_INC(index) ((index+1)&(RADIO_FIFO_SIZE-1))
+#define RADIO_FIFO_INC(index) ((index+1)&(RADIO_FIFO_MASK))
 
-void radio_fifo_init(struct Radio_fifo *fifoPtr);
-void radio_fifo_put(struct Radio_fifo *fifoPtr, const uint8_t *data, uint8_t data_len);
-int8_t radio_fifo_is_full(struct Radio_fifo *fifoPtr);
-int8_t radio_fifo_is_empty(struct Radio_fifo *fifoPtr);
-const uint8_t radio_fifo_take(struct Radio_fifo *fifoPtr, uint8_t *buf_ptr, uint8_t buf_size);
+//void radio_fifo_init(struct Radio_fifo *fifoPtr);
+//void radio_fifo_put(struct Radio_fifo *fifoPtr, const uint8_t *data, uint8_t data_len);
+//int8_t radio_fifo_is_full(struct Radio_fifo *fifoPtr);
+//int8_t radio_fifo_is_empty(struct Radio_fifo *fifoPtr);
+//const uint8_t radio_fifo_take(struct Radio_fifo *fifoPtr, uint8_t *buf_ptr, uint8_t buf_size);
 
 
 /**
@@ -58,6 +60,7 @@ const uint8_t radio_fifo_take(struct Radio_fifo *fifoPtr, uint8_t *buf_ptr, uint
  */
 uint8_t radio_receive_data(uint8_t *buf_ptr, uint8_t buf_size);
 int8_t radio_transmit_data(const uint8_t *buf_ptr, uint8_t buf_size);
+uint8_t radio_fifo_get_free_space_in_tx_queue(void);
 
 void radio_init(void);
 void radio_process(void);

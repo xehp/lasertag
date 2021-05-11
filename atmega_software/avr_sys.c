@@ -8,9 +8,9 @@ Copyright (C) 2021 Henrik Bjorkman www.eit.se/hb.
 This file is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License version 2.1.
 
-Removing this comment or the history section is not allowed.
-If you modify this code make a note about it in the history
-section below. That is required!
+Removing this comment or the history section is not allowed. Even if only
+a few lines from this file is actually used. If you modify this code make
+a note about it in the history section below. That is required!
 
 This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -60,15 +60,20 @@ History
 #endif
 
 
+#if defined AVR_SYS_USE_TMR0 && defined AVR_SYS_USE_TMR2
+#error
+#endif
+
+
 int16_t power_wtd = 0;
 
 
-#ifdef DEBUG_LED_PORT
 
 // Flash n times with the LED, just to see that CPU is running before doing anything else.
 // This may be called before debug_init has been called.
-int avr_blink(char n)
+int avr_blink_debug_led(uint8_t n)
 {
+#ifdef DEBUG_LED_PORT
 	avr_delay_ms_16(200);
 
 	/* INITIALIZE */
@@ -100,11 +105,9 @@ int avr_blink(char n)
 	DEBUG_LED_DISABLE();
 
 	avr_delay_ms_16(800);
-
+#endif
 	return 0;
 }
-
-#endif
 
 
 
@@ -151,7 +154,7 @@ void avr_wtd_reset_and_idle(void)
 	SMCR&=~(1<<SE);
 }
 
-// Only power is allowed to call this reset.
+// Only power (battery charging supervision) is allowed to call this reset.
 void avr_wtd_reset_power(void)
 {
 	power_wtd=-1;
@@ -280,14 +283,16 @@ void avr_delay_us(int delay_us)
 void avr_error_handler_P(const char *pgm_addr, uint16_t errorCode)
 {
 	// Remember to turn things off that must be turned of in case of error.
+	// That is application specific code may have to be entered here.
 
 	for(;;)
 	{
-		uart_print_P(PSTR("\r\n"));
+		uart_print_crlf();
 		uart_print_P(pgm_addr);
 		uart_putchar(' ');
 		uart_print_hex16(errorCode);
-		avr_blink(8);
+		uart_print_crlf();
+		avr_blink_debug_led(8);
 		avr_delay_ms_16(1000);
 		RELAY_OFF();
 	}
@@ -298,18 +303,6 @@ void avr_error_handler_P(const char *pgm_addr, uint16_t errorCode)
 void avr_init() 
 {
 	wdt_enable(WDTO_2S);
-	// Change WDT settings to give it more time such as 8 seconds.
-	// Idea being that only power_tick_s shall issue wdt_reset() after this setting.
-	// Ref [1] Chapter 11.9.2
-	// Perhaps this code shall be placed in avr_init() in file avr_sys.c?
-	/*UART_PRINT_P("sys_init\r\n");
-	wdt_reset();
-	WDTCSR = 0x2F;*/
-	// TODO After enabling this find and remove all wdt_reset except the one here and in
-	// power_tick_s. Same with #include <avr/wdt.h>
-	// TODO The above did nothing, don't know why so commented it out.
-	// Will make an extra slow watchdog timer just for power.
-
 
 	// Analog comparator
 	ACSR|=1<<ACD; // disable analog comparator to save power
@@ -346,10 +339,12 @@ int64_t avr_systime_ms_64(void)
 
 int16_t avr_systime_ms_16(void)
 {
-#ifdef AVR_SYS_USE_TMR0
-	return AVR_TMR0_TRANSLATE_TICKS_TO_MS_16(avr_tmr0_get_tick_64());
+#if (defined AVR_SYS_USE_TMR0) && (AVR_TMR0_TICKS_PER_SEC == 1000)
+	return avr_tmr0_get_tick_16();
 #elif (defined AVR_SYS_USE_TMR2) && (AVR_TMR2_TICKS_PER_SEC == 1000)
 	return avr_tmr2_get_tick_16();
+#elif defined AVR_SYS_USE_TMR0
+	return AVR_TMR0_TRANSLATE_TICKS_TO_MS_16(avr_tmr0_get_tick_64());
 #elif defined AVR_SYS_USE_TMR2
 	return AVR_TMR2_TRANSLATE_TICKS_TO_MS_16(avr_tmr2_get_tick_64());
 #else

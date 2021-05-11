@@ -36,39 +36,15 @@ History
 
 
 
-#ifdef DEBUG_LED_PORT
 
-
-/* enable debug LED as output */
-#define DEBUG_LED_ENABLE() DEBUG_LED_DDR|= _BV(DEBUG_LED_BIT);
-
-/* disable debug LED as output */
-#define DEBUG_LED_DISABLE() DEBUG_LED_DDR&= ~(_BV(DEBUG_LED_BIT));
-
-/* set debug LED output to on or off */
-#ifdef DEBUG_LED_ACTIVE_HIGH
-#define DEBUG_LED_ON() DEBUG_LED_PORT|= _BV(DEBUG_LED_BIT);
-#define DEBUG_LED_OFF() DEBUG_LED_PORT &= ~_BV(DEBUG_LED_BIT);
-#else
-#define DEBUG_LED_ON() DEBUG_LED_PORT &= ~_BV(DEBUG_LED_BIT);
-#define DEBUG_LED_OFF() DEBUG_LED_PORT|= _BV(DEBUG_LED_BIT);
-#endif
-
-#else
-
-// Dummy macros, in case there is no debug LED.
-#define DEBUG_LED_ENABLE()
-#define DEBUG_LED_DISABLE()
-#define DEBUG_LED_ON()
-#define DEBUG_LED_OFF()
-
-#endif
+#define AVR_ERROR_HANDLER_P(str, n) {avr_error_handler_P(PSTR(str), n);}
 
 // To save flash memory the __FILE__ is not given here for now. Add it if needed.
-#define ASSERT(c) {if (!(c)) {avr_error_handler_P(PSTR("ASSERT "), __LINE__);}}
+#define ASSERT(c) {if (!(c)) {AVR_ERROR_HANDLER_P("ASSERT ", __LINE__);}}
 
 
-int avr_blink(char n);
+
+int avr_blink_debug_led(uint8_t n);
 
 
 // set up hardware (port directions, registers etc.)
@@ -91,47 +67,6 @@ void avr_wtd_reset_power(void);
 
 void avr_error_handler_P(const char *pgm_addr, uint16_t errorCode);
 
-
-#if 0
-void debug_uart_init(void);
-
-
-/* send if not using interrupt */
-void debug_uart_putchar(char data );
-
-
-/* receive if not using interrupt */
-/* wait until a character is available */
-unsigned char debug_uart_waitchar( void );
-
-
-/* receive if not using interrupt */
-/* return -1 if no character was available */
-int debug_uart_getchar(void);
-
-
-void debug_uart_print_P(const char *addr);
-
-void debug_uart_test(void);
-
-
-/* send if not using interrupt */
-void debug_uart_putchar(char data );
-
-
-/* receive if not using interrupt */
-/* wait until a character is available */
-unsigned char debug_uart_waitchar( void );
-
-
-/* receive if not using interrupt */
-/* return -1 if no character was available */
-int debug_uart_getchar(void);
-
-void debug_uart_print_P(const char *addr);
-
-void debug_uart_test(void);
-#endif
 
 
 // Just calling avr_delay_us takes about 10 us so subtracting that.

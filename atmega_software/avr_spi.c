@@ -8,9 +8,9 @@ Copyright (C) 2021 Henrik Bjorkman www.eit.se/hb.
 This file is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License version 2.1.
 
-Removing this comment or the history section is not allowed.
-If you modify this code make a note about it in the history
-section below. That is required!
+Removing this comment or the history section is not allowed. Even if only
+a few lines from this file is actually used. If you modify this code make
+a note about it in the history section below. That is required!
 
 This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -66,9 +66,7 @@ void avr_spi_init(void)
 	//DDR_SPI = (1<<DD_MOSI)|(1<<DD_SCK);
 	DDRB |= (1<<DDB2) | (1<<DDB3) | (1<<DDB5);
 
-	/* Enable SPI, Master, set clock rate fck/16 */
-	// TODO Use fck/4
-	SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0);
-
+	/* Enable SPI, Master, set clock rate fck/4 */
+	SPCR = (1<<SPE) | (1<<MSTR) | (0<<SPR0);
 }
 

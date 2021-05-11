@@ -1,16 +1,16 @@
 /*
 avr_adc.c 
 
-provide functions to set up hardware
+Provide functions to use analog to digital converter.
 
 Copyright (C) 2021 Henrik Bjorkman www.eit.se/hb.
 
 This file is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License version 2.1.
 
-Removing this comment or the history section is not allowed.
-If you modify this code make a note about it in the history
-section below. That is required!
+Removing this comment or the history section is not allowed. Even if only
+a few lines from this file is actually used. If you modify this code make
+a note about it in the history section below. That is required!
 
 This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -42,6 +42,7 @@ References:
 // List analog channels that shall be sampled here.
 // Same channel can be listed more than once if it is needed more often than others.
 // Or for noise suppression do 3 values and take the median value.
+// Remember to update setting to DIDR0 (digital input buffers) if changing here.
 static const uint8_t sampling_sequence[] = { 0, 0, 0 };
 
 #define AVR_ADC_N_SAMPLES_TO_TAKE (sizeof(sampling_sequence))
@@ -98,8 +99,11 @@ SIGNAL(ADC_vect) // old name SIG_ADC
 
 void AVR_ADC_init(void)
 {
-  // Disable digital input buffers to save power.
-  //DIDR0=0x3f;
+  // Ref [1] Chapter 23.9.5 "DIDR0 – Digital Input Disable Register 0"
+  // Disable digital input buffers on pins used as analog input to save power.
+  // This setting need to match that in sampling_sequence above, if this is
+  // changed that need to be changed also.
+  DIDR0=0x01;
 
   // Ref [1] Chapter 24.9.1 "ADMUX – ADC Multiplexer Selection Register"
   // ADMUX: REFS1, REFS0, ADLAR, -, MUX3, MUX2, MUX1, MUX0
@@ -133,13 +137,6 @@ void AVR_ADC_init(void)
   #else
   #error AVR_FOSC to low for ADC
   #endif
-
-  // TODO For analog input pins, the digital input buffer should be disabled at all times.
-  // An analog signal level close to VCC/2 on an input pin can cause significant current
-  // even in active mode. Digital input buffers can be disabled by writing to the Digital
-  // Input Disable Registers (DIDR1 and DIDR0).
-  // Refer to ”DIDR1 – Digital Input Disable Register 1” on page 245
-  // and ”DIDR0 – Digital Input Disable Register 0” on page 260 for details.
 }
 
 

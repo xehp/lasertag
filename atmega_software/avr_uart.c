@@ -8,9 +8,9 @@ Copyright (C) 2021 Henrik Bjorkman www.eit.se/hb.
 This file is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License version 2.1.
 
-Removing this comment or the history section is not allowed.
-If you modify this code make a note about it in the history
-section below. That is required!
+Removing this comment or the history section is not allowed. Even if only
+a few lines from this file is actually used. If you modify this code make
+a note about it in the history section below. That is required!
 
 This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -88,7 +88,7 @@ History
 #if ((defined __AVR_ATmega88__) || (defined __AVR_ATmega168__) || (defined __AVR_ATmega328P__))
 // OK
 #else
-#error Unknown or not yet supported device
+#warning Unknown or not yet supported device
 #endif
 
 
@@ -544,6 +544,9 @@ void uart_print_hex32(uint32_t i)
 	uart_print_hex4((i>>0)&0xf);
 }
 
-
+void uart_print_crlf()
+{
+	UART_PRINT_P("\r\n");
+}
 
 

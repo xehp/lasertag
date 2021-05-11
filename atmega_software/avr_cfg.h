@@ -35,9 +35,14 @@ History
 
 
 // Using pin PD3 for debug LED
-#define DEBUG_LED_DDR DDRD
-#define DEBUG_LED_PORT PORTD
-#define DEBUG_LED_BIT PD3
+//#define DEBUG_LED_DDR DDRD
+//#define DEBUG_LED_PORT PORTD
+//#define DEBUG_LED_BIT PD3
+
+// Using pin PD3 for charging indication LEDs
+#define POWER_LED_DDR DDRD
+#define POWER_LED_PORT PORTD
+#define POWER_LED_BIT PD3
 
 
 // Configure timer use. Make sure to use each timer for only one thing.
@@ -49,16 +54,24 @@ History
 #define AVR_SYS_USE_TMR2
 
 
+// Remember that IR and BEEP can not use same timer.
+
 // On next HW version 2021-04-23 and later IR output will be on TMR0.
 // Uncomment only one of the below
 //#define IR_OUTPUT_USE_TMR0
 #define IR_OUTPUT_USE_TMR1
 
+// On second generation PCB IR was on OCA0/PD6
+// TODO On third generation it shall be on OC0B/PD5
+//#define IR_USE_OC0A_PD6
+#define IR_USE_OC0B_PD5
 
 // On next HW version 2021-04-23 and later beep will be on TMR1.
-// Uncomment only one of the below
+#ifdef IR_OUTPUT_USE_TMR1
 #define BEEP_USE_TMR0
-//#define BEEP_USE_TMR1
+#else
+#define BEEP_USE_TMR1
+#endif
 
 
 

@@ -8,9 +8,9 @@ Copyright (C) 2021 Henrik Bjorkman www.eit.se/hb.
 This file is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License version 2.1.
 
-Removing this comment or the history section is not allowed.
-If you modify this code make a note about it in the history
-section below. That is required!
+Removing this comment or the history section is not allowed. Even if only
+a few lines from this file is actually used. If you modify this code make
+a note about it in the history section below. That is required!
 
 This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -69,7 +69,8 @@ Clock select
 // local variables and defines, use 64 bit here to avoid issues with wrapping counters.
 volatile int64_t timer2count;
 
-
+// Minimum 5 max 8 bits per character.
+#define NOF_BITS 5
 
 // Size must be power of 2. So 2, 4, 8, 16...
 #define TX1_FIFO_SIZE 8
@@ -237,44 +238,50 @@ SIGNAL (TIMER2_COMPA_vect)
 
 	switch(tx1_state)
 	{
-	case 0:
-		if (!tx1_fifo_is_empty())
-		{
-			// start bit (zero)
-			IR_OUTPUT_ON();
-			tx1_ch = tx1_fifo_take();
+		case 0:
+			if (!tx1_fifo_is_empty())
+			{
+				// start bit (zero)
+				IR_OUTPUT_ON();
+				tx1_ch = tx1_fifo_take();
+				tx1_state++;
+			}
+			break;
+		case 3:
+		case 6:
+		case 9:
+		case 12:
+		case 15:
+		#if (NOF_BITS >= 6)
+		case 18:
+		#endif
+		#if (NOF_BITS >= 7)
+		case 21:
+		#endif
+		#if (NOF_BITS == 8)
+		case 24:
+		#endif
+			if (tx1_ch & 1)
+			{
+				IR_OUTPUT_OFF();
+			}
+			else
+			{
+				IR_OUTPUT_ON();
+			}
+			tx1_ch = tx1_ch >> 1;
 			tx1_state++;
-		}
-		break;
-	case 3:
-	case 6:
-	case 9:
-	case 12:
-	case 15:
-	case 18:
-	case 21:
-	case 24:
-		if (tx1_ch & 1)
-		{
+			break;
+		case (3*NOF_BITS+3):
+			// stop bit
 			IR_OUTPUT_OFF();
-		}
-		else
-		{
-			IR_OUTPUT_ON();
-		}
-		tx1_ch = tx1_ch >> 1;
-		tx1_state++;
-		break;
-	case 27:
-		// stop bit
-		IR_OUTPUT_OFF();
-		tx1_state++;
-		break;
-	case 30:
-		tx1_state = 0;
-		break;
-	default:
-		tx1_state++;
+			tx1_state++;
+			break;
+		case (3*NOF_BITS+6):
+			tx1_state = 0;
+			break;
+		default:
+			tx1_state++;
 	}
 
 	switch(rx1_state)
@@ -308,13 +315,19 @@ SIGNAL (TIMER2_COMPA_vect)
 		case 10:
 		case 13:
 		case 16:
+		#if (NOF_BITS >= 6)
 		case 19:
+		#endif
+		#if (NOF_BITS >= 7)
 		case 22:
+		#endif
+		#if (NOF_BITS == 8)
 		case 25:
-			rx1_ch = rx1_ch >> 1 | ((INTERNAL_IR_READ() ? 1 : 0) << 7);
+		#endif
+			rx1_ch = rx1_ch >> 1 | ((INTERNAL_IR_READ() ? 1 : 0) << (NOF_BITS-1));
 			rx1_state++;
 			break;
-		case 28:
+		case (NOF_BITS*3)+4:
 			// stop bit
 			if (INTERNAL_IR_READ())
 			{
@@ -362,13 +375,19 @@ SIGNAL (TIMER2_COMPA_vect)
 		case 10:
 		case 13:
 		case 16:
+		#if (NOF_BITS >= 6)
 		case 19:
+		#endif
+		#if (NOF_BITS >= 7)
 		case 22:
+		#endif
+		#if (NOF_BITS == 8)
 		case 25:
+		#endif
 			rx2_ch = rx2_ch >> 1 | ((EXTERNAL_IR_READ() ? 1 : 0) << 7);
 			rx2_state++;
 			break;
-		case 28:
+		case (NOF_BITS*3)+4:
 			// stop bit
 			if (EXTERNAL_IR_READ())
 			{
@@ -506,8 +525,8 @@ void avr_tmr2_init(void)
     DDRB |= (1 << DDB3);
     DDRD |= (1 << DDD3);
 
-    // 50%
-    OCR2A = 128;
+    // 75%
+    OCR2A = 192;
 
     // 25%
     OCR2B = 64;

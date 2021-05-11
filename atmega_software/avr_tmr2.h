@@ -51,6 +51,8 @@ void avr_tmr2_init(void);
 int64_t avr_tmr2_get_tick_64(void);
 int16_t avr_tmr2_get_tick_16(void);
 
+// Timer 2 is also used to run the soft UART that deals with IR signals.
+// This is application specific but put here for efficiency.
 int8_t tx1_fifo_is_full(void);
 void tx1_fifo_put(uint8_t bit);
 int8_t rx1_fifo_is_empty(void);
@@ -58,14 +60,5 @@ int8_t rx1_fifo_take(void);
 int8_t rx2_fifo_is_empty(void);
 int8_t rx2_fifo_take(void);
 
-#else
-
-// set up hardware (port directions, registers etc.)
-void avr_tmr2_init(void);
-
-void avr_tmr2_pwm_off(void);
-void avr_tmr2_pwm_on(void);
-
 #endif
-
 #endif

@@ -8,13 +8,13 @@ Copyright (C) 2021 Henrik Bjorkman www.eit.se/hb.
 This file is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License version 2.1.
 
-Removing this comment or the history section is not allowed.
-If you modify this code make a note about it in the history
-section below. That is required!
+Removing this comment or the history section is not allowed. Even if only
+a few lines from this file is actually used. If you modify this code make
+a note about it in the history section below. That is required!
 
 This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 General Public License for more details.
 
 History
@@ -78,8 +78,6 @@ int main( void )
 	UART_PRINT_P("\r\n" VERSION_STRING "\r\n");
 	avr_wtd_reset_and_idle();
 
-
-
 	avr_delay_ms_16(200);
 
 	// Initiate all sub tasks here.
@@ -101,20 +99,17 @@ int main( void )
 
 	eepromLoad();
 
-	power_init();
-	avr_delay_ms_16(200);
-
 	beep_init();
 	avr_delay_ms_16(200);
 
+	power_init();
+	avr_delay_ms_16(200);
 
 	radio_init();
 	avr_delay_ms_16(200);
 
-
 	game_init();
 	avr_delay_ms_16(200);
-
 
 	cmd_init();
 	avr_delay_ms_16(200);
@@ -133,6 +128,8 @@ int main( void )
 		radio_process();
 
 		game_process();
+
+		beep_process();
 
 		//log_ports();
 
@@ -167,7 +164,6 @@ int main( void )
 				++main_state;
 				break;
 			case 3:
-				beep_tick_s();
 				++main_state;
 				break;
 			case 4:

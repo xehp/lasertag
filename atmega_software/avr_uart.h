@@ -44,13 +44,13 @@ History
 // size of buffer for incoming Data
 // NOTE it must be power of 2: 1,2,4,8,16,32,64,128 or 256 bytes
 #ifndef UART_RX_BUFFER_SIZE
-#define UART_RX_BUFFER_SIZE 32
+#define UART_RX_BUFFER_SIZE 8
 #endif
 
 // size of buffer for outgoing data
 // NOTE it must be power of 2: 1,2,4,8,16,32,64,128 or 256 bytes
 #ifndef UART_TX_BUFFER_SIZE
-#define UART_TX_BUFFER_SIZE 64
+#define UART_TX_BUFFER_SIZE 256
 #endif
 
 
@@ -105,6 +105,8 @@ void uart_print_hex4(uint8_t i);
 void uart_print_hex8(uint8_t i);
 void uart_print_hex16(uint16_t i);
 void uart_print_hex32(uint32_t i);
+
+void uart_print_crlf(void);
 
 #define UART_PRINT_P(str) uart_print_P(PSTR(str));
 

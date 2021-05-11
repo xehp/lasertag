@@ -8,9 +8,9 @@ Copyright (C) 2021 Henrik Bjorkman www.eit.se/hb.
 This file is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License version 2.1.
 
-Removing this comment or the history section is not allowed.
-If you modify this code make a note about it in the history
-section below. That is required!
+Removing this comment or the history section is not allowed. Even if only
+a few lines from this file is actually used. If you modify this code make
+a note about it in the history section below. That is required!
 
 This program is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -105,13 +105,6 @@ void avr_tmr0_pwm_on(uint8_t tone)
     // Set up timer1 so it can give 1 KHz or 2 on PD5 & PD6
     // Current settings below gave 7.81 KHz
 
-    // First turn it off (might not be needed but anyway).
-    avr_tmr0_pwm_off();
-
-    // 50%
-    OCR0A = 128;
-    OCR0B = 128;
-
     /*
     Compare Output Mode, Fast PWM Mode
     0  Normal port operation, OC0A/B disconnected.
@@ -125,17 +118,17 @@ void avr_tmr0_pwm_on(uint8_t tone)
     // Waveform Generation Mode: Fast PWM mode
 	const uint8_t wgm = 3;
 
-	// Set output mode for OC0A & OC0B
+	// clear and set output mode for OC0A & OC0B
+    TCCR0A &= ~((3 << COM0A0) | (3 << COM0B0) | (3 << WGM00));
     TCCR0A |= (com_a << COM0A0) | (com_b << COM0B0) | ((wgm&0x3) << WGM00);
 
-	// set prescaler 256 and start
-	TCCR0B &= ~(7 << CS00);
+	// clear and set prescaler 256 and start
+	TCCR0B &= ~(1<<WGM02 | (7 << CS00));
     TCCR0B |= (((wgm>>2)&1)<<WGM02) | (tone << CS20);
 }
 
 void avr_tmr0_pwm_off(void)
 {
-
     /*
     Compare Output Mode, Fast PWM Mode
     0  Normal port operation, OC0A/B disconnected.
@@ -148,6 +141,8 @@ void avr_tmr0_pwm_off(void)
 
 	// stop
 	TCCR0B &= ~(7 << CS00);
+
+	TCNT0 = 0;
 }
 
 // set up hardware (port directions, registers etc.)
@@ -159,6 +154,11 @@ void avr_tmr0_init(void)
 	// These outputs are active when they differ so using high for both as inactive.
     PORTD |= (1 << DDD6) | (1 << DDD5);
     DDRD |= (1 << DDD6) | (1 << DDD5);
+
+    // 50%
+    OCR0A = 128;
+    OCR0B = 128;
+
 }
 
 // TODO Adjust frequency.
@@ -169,8 +169,13 @@ void avr_tmr0_init(void)
 
 #elif defined IR_OUTPUT_USE_TMR0
 
+#ifdef IR_USE_OC0A_PD6
+
 void avr_tmr0_pwm_off(void)
 {
+	// Output is active high so set it to low (zero/inactive)
+	// This is only needed if we thing someone else also use PD5.
+    //PORTD &= ~(1 << PD5);
 
     /*
     Compare Output Mode, Fast PWM Mode
@@ -185,24 +190,17 @@ void avr_tmr0_pwm_off(void)
 	// stop
 	TCCR0B &= ~(7 << CS00);
 
-    PORTD &= ~(1 << PD6);
+
+	TCNT0 = 0;
 }
 
 // tone:
 // 4 : 244 Hz
 // 5 : 976 Hz
-void avr_tmr0_pwm_on(uint8_t tone)
+void avr_tmr0_pwm_on()
 {
     // Set up timer1 so it can give 1 KHz or 2 on PD5 & PD6
     // Current settings below gave 7.81 KHz
-
-	// First turn it off (might not be needed but anyway).
-	avr_tmr0_pwm_off();
-
-
-    // 50%
-    OCR0A = 128;
-    OCR0B = 128;
 
     /*
     Compare Output Mode, Fast PWM Mode
@@ -211,18 +209,22 @@ void avr_tmr0_pwm_on(uint8_t tone)
     2  Clear OC0A/B on Compare Match, set OC0A/B at BOTTOM,(non-inverting mode).
     3  Set OC0A/B on Compare Match, clear OC0A/B at BOTTOM,(inverting mode).
     */
-    const uint8_t com_a = 2; // not inverting mode
-    const uint8_t com_b = 0; // not used for now
+    const uint8_t com_a = 1; // toggle OC0A on Compare Match
+    const uint8_t com_b = 0; // not used in this case
 
-    // Waveform Generation Mode: Fast PWM mode
-	const uint8_t wgm = 3;
+    // Waveform Generation Mode: CTC
+	const uint8_t wgm = 2;
 
-	// Set output mode for OC0A & OC0B
+	// No prescaling
+	const uint8_t cs = 1;
+
+	// CLear and set output mode for OC0A (& OC0B)
+    TCCR0A &= ~((3 << COM0A0) | (3 << COM0B0) | (3 << WGM00));
     TCCR0A |= (com_a << COM0A0) | (com_b << COM0B0) | ((wgm&0x3) << WGM00);
 
-	// set prescaler 256 and start
-	TCCR0B &= ~(7 << CS00);
-    TCCR0B |= (((wgm>>2)&1)<<WGM02) | (tone << CS20);
+	// Clear and set prescaler and start
+	TCCR0B &= ~(1<<WGM02 | (7 << CS00));
+    TCCR0B |= (((wgm>>2)&1)<<WGM02) | (cs << CS20);
 }
 
 
@@ -230,15 +232,117 @@ void avr_tmr0_pwm_on(uint8_t tone)
 // set up timer 1
 void avr_tmr0_init(void)
 {
-    // set pin OC0A to output PD6
+	// Ref [1] 15.5.3 "The setup of the OC0x should be performed before setting the Data Direction Register for the port pin to output."
+
+	// To get 38 KHz from 16 MHz
+	// Since we use toggle we need double frequency, so 76 KHz
+    OCR0A = 210; // Should give 38.1 KHz
+    OCR0B = OCR0A/2; // Not used probably.
+
+	// set pin OC0A to output PD6
 	// That is pin 12 on 28 pin ATMEGAS
-	// The output is active high so set it to zero.
+	// Output is active high so set it to low (zero/inactive)
     PORTD &= ~(1 << PD6);
     DDRD |= (1 << DDD6);
 }
 
 
 
+#elif defined IR_USE_OC0B_PD5
+
+// Define one of these (not both)
+//#define FAST_PWM
+#define PHASE_PWM
+
+void avr_tmr0_pwm_off(void)
+{
+	// Output is active high so set it to low (zero/inactive)
+	// This is only needed if we thing someone else also use PD5.
+    //PORTD &= ~(1 << PD5);
+
+    /*
+    Compare Output Mode, Fast PWM Mode
+    0  Normal port operation, OC0A/B disconnected.
+    1  -
+    2  Clear OC0A/B on Compare Match, set OC0A/B at BOTTOM,(non-inverting mode).
+    3  Set OC0A/B on Compare Match, clear OC0A/B at BOTTOM,(inverting mode).
+    */
+	// Disable output from OC0B (and OC0A while at it)
+    TCCR0A &= ~((3 << COM0A0) | (3 << COM0B0));
+
+	// stop
+	TCCR0B &= ~(7 << CS00);
+
+	// reset counter also.
+	TCNT0 = 0;
+}
+
+// tone:
+// 4 : 244 Hz
+// 5 : 976 Hz
+void avr_tmr0_pwm_on()
+{
+    // Set up timer1 so it can give 1 KHz or 2 on PD5 & PD6
+    // Current settings below gave 7.81 KHz
+
+    /*
+    Compare Output Mode, Fast PWM Mode
+    0  Normal port operation, OC0A/B disconnected.
+    1  -
+    2  Clear OC0A/B on Compare Match, set OC0A/B at BOTTOM,(non-inverting mode).
+    3  Set OC0A/B on Compare Match, clear OC0A/B at BOTTOM,(inverting mode).
+    */
+    const uint8_t com_a = 0; // not used in this case
+    const uint8_t com_b = 2; // non inverting
+
+	#ifdef FAST_PWM
+	const uint8_t wgm = 2; // Waveform Generation Mode: Fast PWM
+	const uint8_t cs = 2; // 1/8 prescaling
+	#elif defined PHASE_PWM
+	const uint8_t wgm = 5; // Waveform Generation Mode: Phase correct PWM
+	const uint8_t cs = 1; // no prescaling
+	#else
+	#error
+	#endif
+
+
+	// CLear and set output mode for OC0A & OC0B
+    TCCR0A &= ~((3 << COM0A0) | (3 << COM0B0) | (3 << WGM00));
+    TCCR0A |= (com_a << COM0A0) | (com_b << COM0B0) | ((wgm&0x3) << WGM00);
+
+	// Clear and set prescaler and start
+	TCCR0B &= ~(1<<WGM02 | (7 << CS00));
+    TCCR0B |= (((wgm>>2)&1)<<WGM02) | (cs << CS20);
+}
+
+
+// set up hardware (port directions, registers etc.)
+// set up timer 1
+void avr_tmr0_init(void)
+{
+	// Ref [1] 15.5.3 "The setup of the OC0x should be performed before setting the Data Direction Register for the port pin to output."
+
+	// To get 38 KHz from 16 MHz
+	#ifdef FAST_PWM
+	OCR0A = 52; // Should give 38.5 KHz with prescaler 8.
+	#elif defined PHASE_PWM
+	OCR0A = 211; // Should give 38.1 KHz with prescaler 1.
+	#else
+	#error
+	#endif
+
+	OCR0B = OCR0A/4; // 25%.
+
+	// set pin OC0B to output PD5
+	// That is pin 11 on 28 pin ATMEGAS
+	// Output is active high so set it to low (zero/inactive)
+    PORTD &= ~(1 << PD5);
+    DDRD |= (1 << DDD5);
+}
+
+#else
+#error
+#endif
 
 
 #else

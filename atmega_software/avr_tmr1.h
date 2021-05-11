@@ -41,7 +41,10 @@ void avr_tmr1_pwm_on(void);
 
 
 #define LOW_TONE 0xFFFF
+#define MID_TONE 0x3FFF
 #define HIGH_TONE 0xFFF
+#define VHIGH_TONE 0x3FF
+#define NO_TONE 0
 
 
 

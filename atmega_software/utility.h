@@ -33,4 +33,10 @@ char* utility_lltoa(int64_t num, char* str, int base);
 
 int64_t utility_atoll(const char* str);
 
+uint8_t translate_to_ir_code(uint8_t n);
+uint8_t translate_from_ir_code(uint8_t c);
+
+void utility_memcpy(uint8_t *dst, const uint8_t *src, uint8_t n);
+int8_t utility_memcmp(const int8_t* ptr1, const int8_t* ptr2, uint8_t n);
+
 #endif

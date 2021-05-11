@@ -28,5 +28,6 @@ History
 void power_init(void);
 void power_tick_s(void);
 uint16_t power_get_voltage_mV(void);
+int8_t power_get_state(void);
 
 #endif

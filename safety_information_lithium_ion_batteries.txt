@@ -15,6 +15,7 @@ LiIon batterys are classified as hazardous materials due to their ability of sta
 3) If LiIon batteries shall be stored long term they must not be fully charged. 
    About 1/3 is recomended. 
 
+4) Do not charge LiIon batteries at subzero temperatures.
 
 LiIon batteries are not particulary bad for environment but shall be disposed of with 
 some care anyway. Well even a dumpster fire can be a bad thing.

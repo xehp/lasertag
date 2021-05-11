@@ -28,6 +28,7 @@ History
 void game_init(void);
 void game_process(void);
 void game_tick_s(void);
+int8_t game_get_state(void);
 
 
 #endif

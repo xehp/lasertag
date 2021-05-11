@@ -45,9 +45,11 @@ int16_t avr_tmr0_get_tick_16(void);
 
 #elif defined BEEP_USE_TMR0
 
-#define LOW_TONE 4
-#define HIGH_TONE 5
-
+#define LOW_TONE 5
+#define MID_TONE 4
+#define HIGH_TONE 3
+#define VHIGH_TONE 2
+#define NO_TONE 0
 
 
 // set up hardware (port directions, registers etc.)

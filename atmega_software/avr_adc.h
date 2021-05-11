@@ -1,7 +1,7 @@
 /*
 avr_adc.h
 
-provide functions to use analog to digital converter.
+Provide functions to use analog to digital converter.
 
 Copyright (C) 2021 Henrik Bjorkman www.eit.se/hb.
 

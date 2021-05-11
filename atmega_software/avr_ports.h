@@ -116,6 +116,11 @@ History
 #define EXTERNAL_IR_READ() ((EXTERNAL_IR_PIN & _BV(EXTERNAL_IR_BIT)) == 0)
 #endif
 
+
+#if (defined IR_OUTPUT_USE_TMR0) && (defined IR_OUTPUT_USE_TMR1)
+#error
+#endif
+
 #ifdef IR_OUTPUT_USE_TMR1
 #define IR_OUTPUT_ON() avr_tmr1_pwm_on()
 #define IR_OUTPUT_OFF() avr_tmr1_pwm_off()
@@ -126,6 +131,10 @@ History
 #error
 #endif
 
+
+#if (defined BEEP_USE_TMR0) && (defined BEEP_USE_TMR1)
+#error
+#endif
 
 #ifdef BEEP_USE_TMR0
 #define BEEP_ON(tone) avr_tmr0_pwm_on(tone)
@@ -165,6 +174,73 @@ History
 #define RADIO_IRQ_READ() (RADIO_IRQ_PORT_PIN & _BV(RADIO_IRQ_BIT))
 #elif defined RADIO_IRQ_ACTIVE_LOW
 #define RADIO_IRQ_READ() ((RADIO_IRQ_PORT_PIN & _BV(RADIO_IRQ_BIT)) == 0)
+#endif
+
+
+#if defined IR_OUTPUT_USE_TMR0 && defined IR_OUTPUT_USE_TMR1
+#error
+#endif
+
+
+#ifdef DEBUG_LED_PORT
+
+
+/* enable debug LED as output */
+#define DEBUG_LED_ENABLE() DEBUG_LED_DDR|= _BV(DEBUG_LED_BIT);
+
+/* disable debug LED as output */
+#define DEBUG_LED_DISABLE() DEBUG_LED_DDR&= ~(_BV(DEBUG_LED_BIT));
+
+/* set debug LED output to on or off */
+#ifdef DEBUG_LED_ACTIVE_HIGH
+#define DEBUG_LED_ON() {DEBUG_LED_PORT|= _BV(DEBUG_LED_BIT);}
+#define DEBUG_LED_OFF() {DEBUG_LED_PORT &= ~_BV(DEBUG_LED_BIT);}
+#define DEBUG_LED_IS_ON() (DEBUG_LED_PORT & _BV(DEBUG_LED_BIT))
+#else
+#define DEBUG_LED_ON() {DEBUG_LED_PORT &= ~_BV(DEBUG_LED_BIT);}
+#define DEBUG_LED_OFF() {DEBUG_LED_PORT |= _BV(DEBUG_LED_BIT);}
+#define DEBUG_LED_IS_ON() (!(DEBUG_LED_PORT & _BV(DEBUG_LED_BIT)))
+#endif
+
+#else
+
+// Dummy macros, in case there is no debug LED.
+#define DEBUG_LED_ENABLE()
+#define DEBUG_LED_DISABLE()
+#define DEBUG_LED_ON()
+#define DEBUG_LED_OFF()
+
+#endif
+
+
+#ifdef POWER_LED_PORT
+
+
+/* enable debug LED as output */
+#define POWER_LED_ENABLE() POWER_LED_DDR|= _BV(POWER_LED_BIT);
+
+/* disable debug LED as output */
+#define POWER_LED_DISABLE() POWER_LED_DDR&= ~(_BV(POWER_LED_BIT));
+
+/* set debug LED output to on or off */
+#ifdef POWER_LED_ACTIVE_HIGH
+#define POWER_LED_ON() {POWER_LED_PORT|= _BV(POWER_LED_BIT);}
+#define POWER_LED_OFF() {POWER_LED_PORT &= ~_BV(POWER_LED_BIT);}
+#define POWER_LED_IS_ON() (POWER_LED_PORT & _BV(POWER_LED_BIT))
+#else
+#define POWER_LED_ON() {POWER_LED_PORT &= ~_BV(POWER_LED_BIT);}
+#define POWER_LED_OFF() {POWER_LED_PORT |= _BV(POWER_LED_BIT);}
+#define POWER_LED_IS_ON() (!(POWER_LED_PORT & _BV(POWER_LED_BIT)))
+#endif
+
+#else
+
+// Dummy macros, in case there is no power LED.
+#define POWER_LED_ENABLE()
+#define POWER_LED_DISABLE()
+#define POWER_LED_ON()
+#define POWER_LED_OFF()
+#define POWER_LED_IS_ON() 0
 #endif
 
 
