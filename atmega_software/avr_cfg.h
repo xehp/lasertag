@@ -30,7 +30,7 @@ History
 #define AVR_FOSC 16000000L
 
 // Recommended baud rates are 300, 9600 or 19200,
-// If FOSC is 16 MHz and 115200 is selected here we get 125000 baud instead.
+// If FOSC is 16 MHz and 115200 is selected here we get 118000 baud instead.
 #define UART_BAUDRATE 9600
 
 

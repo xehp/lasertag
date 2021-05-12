@@ -354,33 +354,34 @@ unsigned char uart_get_overflow_counter(void)
 // This must be called before any of the other uart functions are called.
 void uart_init(void)
 {
-
-
   // activate internal pull up on PD0, used for serial data input (active low signal).
   PORTD |= _BV(PD0);
-  
-  // do we need internal pull up on PD1 also?
-  //PORTD |= _BV(PD1);
 
 
-
-  //ubrr_value = 103;
-  unsigned int ubrr_value = (AVR_FOSC/(16L*UART_BAUDRATE))-1; // AVR_FOSC is larger than a 16 bit int so be careful here;
+  // uint16_t ubrr_value = (AVR_FOSC/(16L*UART_BAUDRATE))-1;
+  // AVR_FOSC is larger than a 16 bit int so be careful here;
   // Recommended baud rates are 300, 9600 or 19200,
   // With 16 MHz and 115200 baud we get 125000 instead, so be aware.
-
-
-
+  #if UART_BAUDRATE >=9600
+  // Setting this bit UCSR0A bit 1 (U2Xn) the baudrate is doubled,
+  // This can be used to get 115200 baud with 20 MHz and only 1% off.
+  UCSR0A |= _BV(U2X0);
+  uint16_t ubrr_value = (AVR_FOSC/(8L*UART_BAUDRATE))-1;
+  #else
+  // Clearing U2Xn is default so ignoring this step is possible (but if your
+  // boot loader set it things will get confused)
+  UCSR0A &= ~_BV(U2X0);
+  uint16_t ubrr_value = (AVR_FOSC/(16L*UART_BAUDRATE))-1;
+  #endif
+  //
+  // Baudrate will be: AVR_FOSC/(8*(ubrr_value+1))
+  //
+  // TODO perhaps check that ubrr is not more than 4095
+  // https://www.avrfreaks.net/forum/atmega328-115200-baud-problem-16mhz
 
   /* Set baud rate */
   UBRR0H = (unsigned char)(ubrr_value>>8);
   UBRR0L = (unsigned char)ubrr_value;
-
-  // Setting this bit UCSR0A bit 1 (U2Xn) the baudrate is doubled
-  // Remember to adjust calculation of ubrr if this is used.
-  //UCSR0A |= _BV(1); // Or is it better like this:  UCSR0A |= _BV(U2X0);
-  // Clearing it is default so ignoring this step is possible (but if your boot loader set it things will get confused)
-  UCSR0A &= ~_BV(1);
 
   /* Enable receiver and transmitter */
   UCSR0B = (1<<RXEN0)|(1<<TXEN0); // UCSR0B = _BV(RXEN0) | _BV(TXEN0);

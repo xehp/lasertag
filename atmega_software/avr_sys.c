@@ -236,19 +236,24 @@ void avr_delay_us(int delay_us)
 		delay_us--;
 		while(delay_us>0)
 		{
-			#if AVR_FOSC==8000000L
+			#if (AVR_FOSC<6000000L)
+			#elif (AVR_FOSC<9000000L)
+			// for 8 MHz
 			asm ("nop");
-			#elif AVR_FOSC==10000000L
-			asm ("nop");
-			asm ("nop");
-			asm ("nop");
-			#elif AVR_FOSC==12000000L
-			asm ("nop");
+			#elif AVR_FOSC<11000000L
+			// for 10 MHz
 			asm ("nop");
 			asm ("nop");
 			asm ("nop");
+			#elif AVR_FOSC<14000000L
+			// for 12 MHz
 			asm ("nop");
-			#elif AVR_FOSC==16000000L
+			asm ("nop");
+			asm ("nop");
+			asm ("nop");
+			asm ("nop");
+			#elif AVR_FOSC<18000000L
+			// for 16 MHz
 			asm ("nop");
 			asm ("nop");
 			asm ("nop");
@@ -259,6 +264,7 @@ void avr_delay_us(int delay_us)
 			asm ("nop");
 			asm ("nop");
 			#elif AVR_FOSC==20000000L
+			// for 20 MHz
 			asm ("nop");
 			asm ("nop");
 			asm ("nop");

@@ -282,8 +282,7 @@ void avr_tmr0_pwm_off(void)
 // 5 : 976 Hz
 void avr_tmr0_pwm_on()
 {
-    // Set up timer1 so it can give 1 KHz or 2 on PD5 & PD6
-    // Current settings below gave 7.81 KHz
+    // Set up timer1 so can our 38 KHz on PD5.
 
     /*
     Compare Output Mode, Fast PWM Mode
