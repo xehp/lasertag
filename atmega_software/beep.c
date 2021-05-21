@@ -47,7 +47,9 @@ enum {
 	BEEP_ACTIVE_STATE,
 };
 
-static int8_t beep_state = 0;
+static int8_t beep_led = 0;
+static int8_t beep_state_led = 0;
+static int8_t beep_state_audio = 0;
 //int16_t beep_counter = 0;
 static int16_t beep_timer_ms = 0;
 static int8_t log_state = 0;
@@ -147,7 +149,7 @@ void beep_init()
 
 void beep_process()
 {
-    switch (beep_state)
+    switch (beep_state_audio)
     {
 		default:
 		case BEEP_IDLE_STATE:
@@ -157,7 +159,7 @@ void beep_process()
 				volatile struct fifo_entry* d = beep_fifo_take();
 				beep_timer_ms = avr_systime_ms_16() + d->duration_ms;
 				beep_on(d->tone);
-				beep_state = BEEP_ACTIVE_STATE;
+				beep_state_audio = BEEP_ACTIVE_STATE;
 			}
 			break;
 		}
@@ -177,19 +179,44 @@ void beep_process()
 				else
 				{
 					BEEP_OFF();
-					beep_state = BEEP_IDLE_STATE;
+					beep_state_audio = BEEP_IDLE_STATE;
 				}
 			}
 			break;
 		}
     }
-	if (beep_state != log_state)
+	if (beep_state_audio != log_state)
 	{
 		UART_PRINT_P("bs ");
-		uart_print_hex4(beep_state);
+		uart_print_hex4(beep_state_audio);
 		uart_print_crlf();
-		log_state = beep_state;
+		log_state = beep_state_audio;
+	}
+
+	switch(beep_state_led)
+	{
+		case 0:
+			if (beep_led)
+			{
+				HIT_LEDS_ON();
+				beep_state_led = 1;
+			}
+			break;
+		default:
+		case 1:
+			HIT_LEDS_OFF();
+			beep_state_led = 0;
+			break;
 	}
 
 }
 
+void beep_led_on(void)
+{
+	beep_led = 1;
+}
+
+void beep_led_off(void)
+{
+	beep_led = 0;
+}

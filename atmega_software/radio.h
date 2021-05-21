@@ -25,22 +25,27 @@ History
 #ifndef RADIO_H
 #define RADIO_H
 
+#define RADIO_PAYLOAD_MAX_LEN 5
 
-#define RADIO_PAYLOAD_SIZE 5
+// If fixed size is used it shall be same as RADIO_PAYLOAD_MAX_LEN
+#define RADIO_PAYLOAD_FIXED_SIZE RADIO_PAYLOAD_MAX_LEN
 
 #define RADIO_FIFO_SIZE 8
 #define RADIO_FIFO_MASK (RADIO_FIFO_SIZE-1)
 
 struct Radio_fifo_entry
 {
-	uint8_t data[RADIO_PAYLOAD_SIZE];
+	uint8_t data[RADIO_PAYLOAD_MAX_LEN];
+	#ifndef RADIO_PAYLOAD_FIXED_SIZE
 	uint8_t length;
+	#endif
 };
 
 struct Radio_fifo
 {
   uint8_t head;
   uint8_t tail;
+  uint8_t old;
   struct Radio_fifo_entry buffer[RADIO_FIFO_SIZE];
 };
 
@@ -64,5 +69,6 @@ uint8_t radio_fifo_get_free_space_in_tx_queue(void);
 
 void radio_init(void);
 void radio_process(void);
+void radio_tick(void);
 
 #endif

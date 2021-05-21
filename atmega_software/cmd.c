@@ -73,8 +73,14 @@ static void interpret_get(char *ptr)
 		case 'i':
 			LOG_INT16_P("id", ee.ID);
 			break;
+		case 'm':
+			LOG_INT16_P("n", ee.microVoltsPerUnit);
+			break;
 		case 'n':
 			LOG_INT16_P("n", ee.player_number);
+			break;
+		case 's':
+			LOG_INT16_P("s", ee.stop_charging_battery_at_mv);
 			break;
 		case 'v':
 		{
@@ -109,9 +115,17 @@ static void interpret_set(char *ptr)
 			ee.ID = utility_atoll(ptr+1);
 			LOG_INT16_P("id", ee.ID);
 			break;
+		case 'm':
+			ee.microVoltsPerUnit = utility_atoll(ptr+1);
+			LOG_INT16_P("m", ee.player_number);
+			break;
 		case 'n':
 			ee.player_number = utility_atoll(ptr+1);
 			LOG_INT16_P("n", ee.player_number);
+			break;
+		case 's':
+			ee.stop_charging_battery_at_mv = utility_atoll(ptr+1);
+			LOG_INT16_P("s", ee.stop_charging_battery_at_mv);
 			break;
 		default:
 			UART_PRINT_P("?\r\n");

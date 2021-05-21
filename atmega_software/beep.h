@@ -31,4 +31,7 @@ void beep_process(void);
 uint8_t beep_get_free_space_in_queue(void);
 void beep_fifo_put(uint16_t tone, uint16_t duration_ms);
 
+void beep_led_on(void);
+void beep_led_off(void);
+
 #endif

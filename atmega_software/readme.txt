@@ -12,7 +12,11 @@ http://www.eit.se/habl/
 
 
 # Install compiler and avrdude (on debian/ubuntu/mint style linux):
-sudo apt-get install gcc-avr avr-libc binutils-avr avrdude cutecom lrzsz screen
+sudo apt-get install gcc-avr avr-libc binutils-avr avrdude cutecom lrzsz screen make
+
+
+# hex2bin is also needed
+# https://sourceforge.net/projects/hex2bin/
 
 
 This may also be handy (but not required)

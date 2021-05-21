@@ -30,9 +30,12 @@ History
 
 
 
-
 // A magic number so we can detect if expected format of stored eedata has been changed (don't use zero).
-#define EEDATA_MAGIC_NR 0x0121
+#define EEDATA_MAGIC_NR 0x0122
+
+// Is there a old data format that we may encounter.
+#define EEDATA_LEGACY_MAGIC_NR 0x0121
+
 
 
 typedef struct
@@ -42,8 +45,8 @@ typedef struct
 	uint32_t device_type;
 	uint32_t player_number;
 	uint32_t spare4; // team?
-	uint32_t spare5;
-	uint32_t spare6;
+	uint32_t microVoltsPerUnit;
+	uint32_t stop_charging_battery_at_mv;
 	uint32_t spare7;
 	uint32_t spare8;
 	uint32_t spare9;
@@ -55,6 +58,29 @@ typedef struct
 	uint32_t checkSum;
 }
 EeDataStruct;
+
+#ifdef EEDATA_LEGACY_MAGIC_NR
+typedef struct
+{
+	uint32_t magicNumber;
+	uint32_t ID;
+	uint32_t device_type;
+	uint32_t player_number;
+	uint32_t spare4; // team?
+	uint32_t microVoltsPerUnit;
+	uint32_t spare6;
+	uint32_t spare7;
+	uint32_t spare8;
+	uint32_t spare9;
+	uint32_t spare10;
+	uint32_t spare11;
+	uint32_t spare12;
+	uint32_t spare13;
+	uint32_t spare14;
+	uint32_t checkSum;
+}
+EeDataLegacyStruct;
+#endif
 
 
 extern EeDataStruct ee;

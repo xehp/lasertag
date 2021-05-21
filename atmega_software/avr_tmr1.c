@@ -119,40 +119,44 @@ void avr_tmr1_pwm_on(uint16_t tone)
 {
 	// Set up timer1 so it can give 38 KHz on OC1A (AKA PB1 pin 15)
 
-	// First turn it off (might not be needed but anyway).
-	avr_tmr1_pwm_off();
+	// First clear TCCR1A & TCCR1B (turns it off)
+    TCCR1A = 0;
+	TCCR1B = 0;
 
-    // top
-    // TODO this needs to be calculated to get the wanted 38 KHz.
-    // First try (ICR1 = 0xFFFF) gave 244.1 Hz
-    ICR1 = tone;
+	if (tone != 0)
+	{
+		// A not inverted, B inverted
+		const uint8_t com1a = 2;
+		const uint8_t com1b = 3;
 
-    // 50%
-    OCR1A = ICR1/2;
+		// Fast PWM mode using ICR1 as TOP
+		const uint8_t wgm1 = 14;
 
-    // 50%
-    OCR1B = ICR1/2;
+		/*
+		Clock select
+		0 No clock (stop)
+		1 No prescaling
+		2 clk/8
+		3 clk/64
+		4 clk/256
+		5 clk/1024
+		6 External source on falling edge.
+		7 External source on rising edge.
+		*/
+		const uint8_t cs = 1;
 
-    // A not inverted, B inverted
-    TCCR1A |= (1 << COM1A0)|(3 << COM1B0);
+		// top
+		ICR1 = tone;
 
-    // Fast PWM mode using ICR1 as TOP
-    TCCR1A |= (1 << WGM11);
-    TCCR1B |= (1 << WGM12)|(1 << WGM13);
+		// PB1 to 50%
+		OCR1A = ICR1/2;
 
-	/*
-    Clock select
-    0 No clock (stop)
-    1 No prescaling
-    2 clk/8
-    3 clk/64
-    4 clk/256
-    5 clk/1024
-    6 External source on falling edge.
-    7 External source on rising edge.
-    */
-    uint8_t cs = 1;
-    TCCR1B |= (cs << CS10);
+		// PB2 to 50%
+		OCR1B = ICR1/2;
+
+		TCCR1A |= (com1a << COM1A0) | (com1b << COM1B0) | ((wgm1 & 3) << WGM10);
+		TCCR1B |= (((wgm1 >> 2) & 3) << WGM12) | (cs << CS10);
+	}
 }
 
 

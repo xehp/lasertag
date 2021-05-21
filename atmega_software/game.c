@@ -99,7 +99,7 @@ static uint8_t type_of_other_dev(uint8_t this_device)
 
 static void send_ack_to_other_dev(uint8_t hit_msg, uint8_t seq_nr, uint8_t hit_by)
 {
-	uint8_t data[RADIO_PAYLOAD_SIZE];
+	uint8_t data[RADIO_PAYLOAD_MAX_LEN];
 	data[0] = (msg_category_ack << MSG_CMD_SIZE) | (hit_msg & MSG_CMD_MASK);
 	data[1] = seq_nr;
 	data[2] = (ee.device_type << PLAYER_ID_SIZE) | (ee.player_number & PLAYER_ID_MASK);
@@ -123,7 +123,7 @@ static void send_got_hit_msg(uint8_t ch)
 	 *   destination dev and ID
 	 *   Hit by player ID (no dev info needed)
 	 */
-	uint8_t data[RADIO_PAYLOAD_SIZE];
+	uint8_t data[RADIO_PAYLOAD_MAX_LEN];
 	data[0] = (msg_category_cmd << MSG_CMD_SIZE) | (hit_msg & MSG_CMD_MASK);
 	data[1] = msg_counter & 0xFF;
 	data[2] = (ee.device_type << PLAYER_ID_SIZE) | (ee.player_number & PLAYER_ID_MASK);
@@ -181,7 +181,7 @@ static void hit_received_on_ir(uint8_t code)
 		send_got_hit_msg(ch);
 		if (ee.device_type == pointer_dev)
 		{
-			HIT_LEDS_ON();
+			beep_led_on();
 			play_got_hit_sound();
 			hit_flag = 1;
 		}
@@ -198,7 +198,7 @@ void hit_message_received(const uint8_t *msg, uint8_t n)
 	{
 		// we got hit
 		UART_PRINT_P("hit\r\n");
-		HIT_LEDS_ON();
+		beep_led_on();
 		send_ack_to_other_dev(hit_msg, seq_nr, player_that_was_hit);
 		play_got_hit_sound();
 		hit_flag = 1;
@@ -227,7 +227,7 @@ void hit_ack_received(const uint8_t *msg, uint8_t n)
 
 		if (ee.device_type != pointer_dev)
 		{
-			HIT_LEDS_ON();
+			beep_led_on();
 			play_got_hit_sound();
 			hit_flag = 1;
 		}
@@ -303,7 +303,7 @@ void msg_received(const uint8_t *msg, uint8_t n)
 static void test_message(void)
 {
 	// Here is an example on how to send a message over radio.
-	uint8_t data[RADIO_PAYLOAD_SIZE];
+	uint8_t data[RADIO_PAYLOAD_MAX_LEN];
 	data[0] = 0;
 	data[1] = (msg_counter >> 24) & 0xFF;
 	data[2] = (msg_counter >> 16) & 0xFF;
@@ -321,7 +321,7 @@ static void test_message(void)
 
 static void enter_vib_state(void)
 {
-	HIT_LEDS_ON();
+	beep_led_on();
 	VIB_ON();
 	hit_flag = 0;
 	UART_PRINT_P("vib\r\n");
@@ -335,6 +335,8 @@ void game_process(void)
 	const int16_t t = avr_systime_ms_16();
 	const int16_t d = t-game_timer_ms;
 
+#if 1
+
 	// This was just while debugging. Can be removed later.
 	/*if (uart_get_free_space_in_write_buffer() < (UART_TX_BUFFER_SIZE/2))
 	{
@@ -342,7 +344,7 @@ void game_process(void)
 	}*/
 
 	// This is how we check for new messages from radio.
-	uint8_t tmp[RADIO_PAYLOAD_SIZE] = {0};
+	uint8_t tmp[RADIO_PAYLOAD_MAX_LEN] = {0};
 	const uint8_t n = radio_receive_data(tmp, sizeof(tmp));
 	if (n>0)
 	{
@@ -375,7 +377,7 @@ void game_process(void)
 	{
 		default:
 		case game_state_idle:
-			HIT_LEDS_ON();
+			beep_led_on();
 			game_timer_ms = t + 3000;
 			game_state = game_state_led;
 			break;
@@ -400,7 +402,7 @@ void game_process(void)
 			else if (d >= 0)
 			{
 				//UART_PRINT_P("dark\r\n");
-				HIT_LEDS_OFF();
+				beep_led_off();
 				game_timer_ms = t + 3000;
 				game_state = game_state_dark;
 			}
@@ -413,7 +415,7 @@ void game_process(void)
 			else if (d >= 0)
 			{
 				//UART_PRINT_P("ready\r\n");
-				HIT_LEDS_OFF();
+				beep_led_off();
 				game_timer_ms = t + 3000;
 				game_state = game_state_ready;
 			}
@@ -433,7 +435,7 @@ void game_process(void)
 				uart_print_crlf();
 				tx1_fifo_put(c);
 				LASER_ON();
-				HIT_LEDS_ON();
+				beep_led_on();
 				play_fire_laser_sound();
 				game_state = trigger_pulled_leds_on;
 				game_timer_ms = t+100;
@@ -452,7 +454,7 @@ void game_process(void)
 			else if (d >= 0)
 			{
 				//UART_PRINT_P("laser\r\n");
-				HIT_LEDS_OFF();
+				beep_led_off();
 				LASER_OFF();
 				game_timer_ms = t+100;
 				game_state = trigger_pulled_leds_off;
@@ -497,6 +499,64 @@ void game_process(void)
 		uart_print_crlf();
 		log_game_state = game_state;
 	}
+
+#else
+	// This code is used for testing HW
+
+	// Checking for codes received on IR.
+	if (!rx1_fifo_is_empty())
+	{
+		const int8_t code = rx1_fifo_take();
+		UART_PRINT_P("rx1 ");
+		uart_print_hex8(code);
+		uart_print_crlf();
+	}
+
+	if (!rx2_fifo_is_empty())
+	{
+		const int8_t code = rx2_fifo_take();
+		UART_PRINT_P("rx2 ");
+		uart_print_hex8(code);
+		uart_print_crlf();
+	}
+
+
+	if (d>=0)
+	{
+		tx1_fifo_put(0x55);
+
+		switch(game_state)
+		{
+		case 0:
+			LASER_ON();
+			beep_led_on();
+			VIB_ON();
+			game_state = 1;
+			break;
+		default:
+			LASER_OFF();
+			beep_led_off();
+			VIB_OFF();
+			game_state = 0;
+			break;
+		}
+
+		game_timer_ms = t+50;
+	}
+
+	beep_fifo_put(MID_TONE, 5000);
+
+	int8_t trig = TRIGGER_READ();
+
+	if (trig != log_game_state)
+	{
+		UART_PRINT_P("gs ");
+		uart_print_hex4(trig);
+		uart_print_crlf();
+		log_game_state = trig;
+	}
+
+#endif
 
 }
 

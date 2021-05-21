@@ -164,6 +164,7 @@ int main( void )
 				++main_state;
 				break;
 			case 3:
+				radio_tick();
 				++main_state;
 				break;
 			case 4:

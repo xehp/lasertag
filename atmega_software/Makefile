@@ -27,7 +27,7 @@ OBJCOPY=avr-objcopy
 # -Werror = Treat warnings as errors
 # -Os = optimize for size
 # -mcall-prologues = I don't know...
-CFLAGS=-g -mmcu=$(MCU) -Wall -Werror -Wstrict-prototypes -Os -mcall-prologues
+CFLAGS=-g -mmcu=$(MCU) -Wall -Werror -Wno-error=unused-function -Wstrict-prototypes -Os -mcall-prologues
 
 
 

@@ -39,6 +39,10 @@ History
 #define BACKUP_EEPROM_OFFSET 512
 
 
+// At 3.425 Volt got ADC value 0x024c (588)
+#define DEFAULT_MicroVolt_PER_ADC_UNIT 5825L
+
+#define DEFAULT_BATTERY_STOP_CHARGING_MV 4100
 
 
 EeDataStruct ee={
@@ -47,8 +51,8 @@ EeDataStruct ee={
     0,
     0,
     0,
-    0,
-    0,
+	DEFAULT_MicroVolt_PER_ADC_UNIT,
+	DEFAULT_BATTERY_STOP_CHARGING_MV,
     0,
     0,
     0,
@@ -104,7 +108,40 @@ void eepromSave()
 	UART_PRINT_P("eeprom save\r\n");
 }
 
+#ifdef EEDATA_LEGACY_MAGIC_NR
+static void eepromDataUpgrade(EeDataStruct* e)
+{
+	if (e->magicNumber == EEDATA_LEGACY_MAGIC_NR)
+	{
+		EeDataLegacyStruct* l = (EeDataLegacyStruct*)e;
 
+		// save checksum
+		const uint32_t csumLoaded = l->checkSum;
+
+		// Set checksum to zero while calculating it. Since that is what we did when saving
+		l->checkSum = 0;
+
+		// Check CRC with old size of data. NOTE new size must not be less than old!
+		const uint32_t csumCalculated = calcCSum((const unsigned char *)l, sizeof(EeDataLegacyStruct));
+
+		if (csumCalculated == csumLoaded)
+		{
+		    // Apply any translation needed here. For example if another
+		    // field was added set it to its default value.
+			e->magicNumber = EEDATA_MAGIC_NR;
+			e->stop_charging_battery_at_mv = DEFAULT_BATTERY_STOP_CHARGING_MV;
+
+			// Checksum was OK so update it also to new format.
+			e->checkSum = 0;
+			const uint32_t newCsum = calcCSum((const unsigned char *)e, sizeof(EeDataStruct));
+			e->checkSum = newCsum;
+
+			UART_PRINT_P("upgraded eeprom");
+		}
+
+	}
+}
+#endif
 
 
 // Returns 0 if OK
@@ -114,6 +151,10 @@ static int8_t eepromTryLoad(uint16_t offset)
 
 
 	const int8_t r = loadBytePacker(&tmp, offset);
+
+	#ifdef EEDATA_LEGACY_MAGIC_NR
+	eepromDataUpgrade(&tmp);
+	#endif
 
 	// save checksum
 	const uint32_t csumLoaded = tmp.checkSum;

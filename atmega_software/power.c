@@ -41,6 +41,7 @@ References:
 #include "avr_ports.h"
 #include "avr_tmr0.h"
 #include "avr_tmr1.h"
+#include "avr_eeprom.h"
 #include "utility.h"
 #include "beep.h"
 #include "power.h"
@@ -48,7 +49,8 @@ References:
 
 
 // At 3.425 Volt got ADC value 0x024c (588)
-#define MicroVolt_PER_ADC_UNIT 5825L
+//#define MicroVolt_PER_ADC_UNIT 5825L
+#define MicroVolt_PER_ADC_UNIT ee.microVoltsPerUnit
 
 // Typical LiIon can be charged to 4.2 Volt (some unusual ones only 4.1 Volt).
 // A 50 mV margin from that is recommended so we could use 4150 mV.
@@ -56,7 +58,7 @@ References:
 // We probably have plenty of capacity so we can keep some extra margin.
 // We will not optimize performance yet so using a little less here for now.
 // Ref [2]
-#define BATTERY_STOP_CHARGING_MV 4100
+#define BATTERY_STOP_CHARGING_MV ee.stop_charging_battery_at_mv
 #define BATTERY_FULL_MV 4200
 
 // Typically LiIon is empty at 2.8 to 3.0 Volt.

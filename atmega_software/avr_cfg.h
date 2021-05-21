@@ -27,6 +27,9 @@ History
 #ifndef AVR_CFG_H
 #define AVR_CFG_H
 
+// Use 0 or 1 here
+#define HW_VERSION 1
+
 #define AVR_FOSC 16000000L
 
 // Recommended baud rates are 300, 9600 or 19200,
@@ -58,8 +61,11 @@ History
 
 // On next HW version 2021-04-23 and later IR output will be on TMR0.
 // Uncomment only one of the below
-//#define IR_OUTPUT_USE_TMR0
+#if HW_VERSION == 0
 #define IR_OUTPUT_USE_TMR1
+#else
+#define IR_OUTPUT_USE_TMR0
+#endif
 
 // On second generation PCB IR was on OCA0/PD6
 // TODO On third generation it shall be on OC0B/PD5
@@ -85,11 +91,18 @@ History
 #define RELAY_ACTIVE_LOW
 
 // Output for hit indication LEDs, PB2
+// NOTE in next HW version 2021-04-23 and later HIT LEDS will be on PD5 (pin 11 of 28)
+#if HW_VERSION == 0
 #define HIT_LEDS_DDR DDRB
 #define HIT_LEDS_PORT PORTB
 #define HIT_LEDS_BIT PB2
 #define HIT_LEDS_ACTIVE_HIGH
-// NOTE in next HW version 2021-04-23 and later HIT LEDS will be on PD5 (pin 11 of 28)
+#else
+#define HIT_LEDS_DDR DDRD
+#define HIT_LEDS_PORT PORTD
+#define HIT_LEDS_BIT PD6
+#define HIT_LEDS_ACTIVE_HIGH
+#endif
 
 // Output for Laser, PD7
 #define LASER_DDR DDRD
@@ -127,11 +140,15 @@ History
 
 
 // Input for trigger button, PC2
+// NOTE in next HW version 2021-04-24 and later trigger will be active high
 #define TRIGGER_PORT PORTC
 #define TRIGGER_PORT_PIN PINC
 #define TRIGGER_BIT PC2
+#if HW_VERSION == 0
 #define TRIGGER_ACTIVE_LOW
-// NOTE in next HW version 2021-04-24 and later trigger will be active high
+#else
+#define TRIGGER_ACTIVE_HIGH
+#endif
 
 
 // Input for internal IR detector, PC3
