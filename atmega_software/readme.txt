@@ -58,7 +58,7 @@ https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=911378
 
 Sending from command line instead:
 stty -F /dev/ttyUSB0 9600 cs8 -parenb -cstopb -ixon
-sx havrapp.bin < /dev/ttyUSB0 > /dev/ttyUSB0 
+make; sx havrapp.bin < /dev/ttyUSB0 > /dev/ttyUSB0 
 
 
 

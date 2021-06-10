@@ -28,7 +28,10 @@ History
 #define AVR_CFG_H
 
 // Use 0 or 1 here
-#define HW_VERSION 1
+// For HW 2021-04-05 use HW_VERSION 0
+// For HW 2021-04-23 or 2021-04-27 use 1
+// For HW 2021-05-27 use HW_VERSION 2
+#define HW_VERSION 2
 
 #define AVR_FOSC 16000000L
 
@@ -97,6 +100,11 @@ History
 #define HIT_LEDS_PORT PORTB
 #define HIT_LEDS_BIT PB2
 #define HIT_LEDS_ACTIVE_HIGH
+#elif HW_VERSION == 2
+#define HIT_LEDS_DDR DDRD
+#define HIT_LEDS_PORT PORTD
+#define HIT_LEDS_BIT PD6
+#define HIT_LEDS_ACTIVE_LOW
 #else
 #define HIT_LEDS_DDR DDRD
 #define HIT_LEDS_PORT PORTD
@@ -105,18 +113,30 @@ History
 #endif
 
 // Output for Laser, PD7
+#if HW_VERSION == 2
+#define LASER_DDR DDRD
+#define LASER_PORT PORTD
+#define LASER_BIT PD7
+#define LASER_ACTIVE_LOW
+#else
 #define LASER_DDR DDRD
 #define LASER_PORT PORTD
 #define LASER_BIT PD7
 #define LASER_ACTIVE_HIGH
-
+#endif
 
 // Output for vibrator, PC5
+#if HW_VERSION == 2
+#define VIB_DDR DDRC
+#define VIB_PORT PORTC
+#define VIB_BIT PC5
+#define VIB_ACTIVE_LOW
+#else
 #define VIB_DDR DDRC
 #define VIB_PORT PORTC
 #define VIB_BIT PC5
 #define VIB_ACTIVE_HIGH
-
+#endif
 
 
 // Radio Chip enable (assumed active high) is on PC4

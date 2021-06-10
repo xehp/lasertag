@@ -76,9 +76,8 @@ int main( void )
 	// Initiate USART (serial port).
 	uart_init();
 	UART_PRINT_P("\r\n" VERSION_STRING "\r\n");
-	avr_wtd_reset_and_idle();
 
-	avr_delay_ms_16(200);
+	avr_delay_ms_16(100);
 
 	// Initiate all sub tasks here.
 
@@ -87,8 +86,12 @@ int main( void )
 	avr_wtd_reset_and_idle();
 	#endif
 
+
 	avr_tmr0_init();
 	avr_tmr1_init();
+
+	UART_PRINT_P("enable IO\r\n");
+	avr_delay_ms_16(100);
 
 	HIT_LEDS_ENABLE();
 	LASER_ENABLE();
@@ -97,22 +100,24 @@ int main( void )
 	EXTERNAL_IR_INIT();
 	INTERNAL_IR_INIT();
 
+	avr_delay_ms_16(100);
+
 	eepromLoad();
 
 	beep_init();
-	avr_delay_ms_16(200);
+	avr_delay_ms_16(100);
 
 	power_init();
-	avr_delay_ms_16(200);
+	avr_delay_ms_16(100);
 
 	radio_init();
-	avr_delay_ms_16(200);
+	avr_delay_ms_16(100);
 
 	game_init();
-	avr_delay_ms_16(200);
+	avr_delay_ms_16(100);
 
 	cmd_init();
-	avr_delay_ms_16(200);
+	avr_delay_ms_16(100);
 
 	// All init is done, get ready to run main loop.
 	UART_PRINT_P("main\r\n");
@@ -182,8 +187,6 @@ int main( void )
 		// Set CPU in idle mode to save energy, it will wake up next time there is an interrupt
 		avr_wtd_reset_and_idle();
 	}
-
-
 
 	return(0);
 } // end main()

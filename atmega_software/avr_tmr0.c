@@ -39,6 +39,7 @@ http://www.nongnu.org/avr-libc/user-manual/index.html
 #include <stdint.h>
 
 #include "avr_cfg.h"
+#include "avr_uart.h"
 #include "avr_tmr0.h"
 
 #define TMR2_PRESCALER_Stop 0
@@ -257,7 +258,7 @@ void avr_tmr0_init(void)
 void avr_tmr0_pwm_off(void)
 {
 	// Output is active high so set it to low (zero/inactive)
-	// This is only needed if we thing someone else also use PD5.
+	// This is only needed if we think someone else also use PD5.
     //PORTD &= ~(1 << PD5);
 
     /*
@@ -323,20 +324,47 @@ void avr_tmr0_init(void)
 
 	// To get 38 KHz from 16 MHz
 	#ifdef FAST_PWM
-	OCR0A = 52; // Should give 38.5 KHz with prescaler 8.
+		#if AVR_FOSC == 16000000L
+		OCR0A = 52; // Should give 38.5 KHz with prescaler 8.
+		#else
+		#error
+		#endif
 	#elif defined PHASE_PWM
-	OCR0A = 211; // Should give 38.1 KHz with prescaler 1.
+		// Fpwm = Fosc / ((OCR0A-1) * 2)
+		#if AVR_FOSC == 16000000L
+		OCR0A = 211; // Should give 38.1 KHz with prescaler 1 and 16 MHz.
+		#elif AVR_FOSC == 12000000L
+		// With 12 MHz OCR0A=159 should give 38.0 KHz out
+		OCR0A = 159; // should give 38.0 KHz
+		#elif AVR_FOSC == 8000000L
+		// With 8 MHz OCR0A=106 should give 38.1 KHz out
+		OCR0A = 106; // should give 38.1 KHz
+		#else
+		#error
+		#endif
 	#else
 	#error
 	#endif
 
 	OCR0B = OCR0A/4; // 25%.
 
+
 	// set pin OC0B to output PD5
 	// That is pin 11 on 28 pin ATMEGAS
+	#if HW_VERSION == 2
+	// Output is active low so set it to high (one)
+    PORTD |= (1 << PD5);
+    DDRD |= (1 << DDD5);
+	#else
 	// Output is active high so set it to low (zero/inactive)
     PORTD &= ~(1 << PD5);
     DDRD |= (1 << DDD5);
+	#endif
+
+	uart_print_P(PSTR("tmr0"));
+	uart_putchar(' ');
+	uart_print_hex8(OCR0A);
+	uart_print_P(PSTR("\r\n"));
 }
 
 #else

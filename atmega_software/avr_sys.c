@@ -177,7 +177,7 @@ void avr_delay_ms_16(int delay_ms)
 #elif (defined AVR_SYS_USE_TMR2) && (AVR_TMR2_TICKS_PER_SEC == 1000)
 	// Translate into timer2 ticks
 	const int16_t ticks_to_delay = delay_ms;
-	const int16_t tick_target=avr_tmr2_get_tick_16()+ticks_to_delay;
+	const int16_t tick_target = avr_tmr2_get_tick_16() + ticks_to_delay;
 	while((tick_target-avr_tmr2_get_tick_16())>=0)
 	{
 		// wait

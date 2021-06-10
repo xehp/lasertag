@@ -103,6 +103,19 @@ References:
 #define radio_is_data_sent() (status & RFM75_STATUS_TX_DR_MASK)
 #define radio_get_rx_p_no() ((status & RFM75_RX_P_NO_MASK) >> 1)
 
+enum
+{
+		radio_initial_state=0,
+		radio_detecting_state,
+		radio_delay_after_detect_state,
+		radio_send_hello_state,
+		radio_check_result_after_hello_state,
+		radio_delay_after_sending,
+		radio_check_result_after_send_state,
+		radio_send_data_state,
+		radio_fail_state
+};
+
 
 static uint8_t state = 0;
 static int16_t timer_ms = 0;
@@ -115,6 +128,8 @@ static uint8_t logged_rx_p_no = 0;
 static int16_t pseudo_random_counter = 0;
 static int8_t nof_msg_received = 0;
 static int8_t nof_msg_received_sec = 0;
+static int8_t log_counter = -1;
+static int8_t radio_detected = 0;
 
 static void radio_fifo_init(struct Radio_fifo *fifoPtr)
 {
@@ -761,7 +776,8 @@ static uint8_t get_reg_size(uint8_t reg_id)
 	}
 }
 
-static void radio_log_register(uint8_t reg_id)
+// Not only logging, we check if radio is present here.
+static int8_t radio_log_register(uint8_t reg_id)
 {
 	uint8_t tmp[5];
 	uint8_t len = get_reg_size(reg_id);
@@ -777,6 +793,8 @@ static void radio_log_register(uint8_t reg_id)
 		}
 		uart_print_crlf();
 	}
+
+	return tmp[0];
 }
 
 
@@ -906,9 +924,9 @@ uint8_t radio_pseudo_random(uint8_t n)
 
 void radio_init(void)
 {
-	UART_PRINT_P("radio_init\r\n");
-
 	avr_spi_init();
+
+	UART_PRINT_P("radio_init\r\n");
 
 	radio_fifo_init(&receive_fifo);
 	radio_fifo_init(&transmit_fifo);
@@ -979,7 +997,7 @@ void radio_process(void)
 
 	switch(state)
 	{
-	case 0:
+	case radio_initial_state:
 		if (d >= 0)
 		{
 			radio_read_status();
@@ -991,17 +1009,31 @@ void radio_process(void)
 		}
 		break;
 
-	case 1:
+	case radio_detecting_state:
 		if (uart_get_free_space_in_write_buffer() >= (UART_TX_BUFFER_SIZE/2))
 		{
-			radio_log_register(counter);
-			++counter;
+			const int8_t r = radio_log_register(counter);
 
+			if ((radio_detected == 0) && (r != 0) && (r != -1) && (counter < 10))
+			{
+				UART_PRINT_P("radio detected\r\n");
+				radio_detected = 1;
+			}
+
+			++counter;
 			if (counter > 0x1F)
 			{
 				counter = 0;
-				state++;
-				timer_ms = t + 1000;
+				if (radio_detected == 0)
+				{
+					UART_PRINT_P("no radio\r\n");
+					state = 0xFF;
+				}
+				else
+				{
+					state++;
+					timer_ms = t + 1000;
+				}
 			}
 			else
 			{
@@ -1010,7 +1042,7 @@ void radio_process(void)
 		}
 		break;
 
-	case 2:
+	case radio_delay_after_detect_state:
 		if (d >= 0)
 		{
 			radio_tx_mode();
@@ -1019,7 +1051,7 @@ void radio_process(void)
 		}
 		break;
 
-	case 3:
+	case radio_send_hello_state:
 	{
 		if (d >= 0)
 		{
@@ -1031,7 +1063,7 @@ void radio_process(void)
 		break;
 	}
 
-	case 4:
+	case radio_check_result_after_hello_state:
 		if (radio_is_max_retrans())
 		{
 			UART_PRINT_P("max_rt\r\n");
@@ -1058,7 +1090,7 @@ void radio_process(void)
 		}
 		break;
 
-	case 5:
+	case radio_delay_after_sending:
 		if (d >= 0)
 		{
 			radio_rx_mode();
@@ -1069,7 +1101,7 @@ void radio_process(void)
 		}
 		break;
 
-	case 6:
+	case radio_check_result_after_send_state:
 		if (radio_is_max_retrans())
 		{
 			UART_PRINT_P("max_rt (late)\r\n");
@@ -1092,7 +1124,11 @@ void radio_process(void)
 			if (radio_fifo_is_data_seen_before(&receive_fifo, data, n))
 			{
 				// ignore data already seen
-				UART_PRINT_P("ro\r\n");
+				if (log_counter != 0)
+				{
+					UART_PRINT_P("ro\r\n");
+					log_counter--;
+				}
 			}
 			else
 			{
@@ -1112,6 +1148,7 @@ void radio_process(void)
 				{
 					uart_putchar('$');
 				}
+				log_counter = -1;
 			}
 			nof_msg_received++;
 		}
@@ -1133,8 +1170,7 @@ void radio_process(void)
 			}
 		}
 		break;
-
-	case 7:
+	case radio_send_data_state:
 		if (d >= 0)
 		{
 			uint8_t data[RADIO_PAYLOAD_MAX_LEN];
@@ -1146,6 +1182,7 @@ void radio_process(void)
 		}
 
 		break;
+	case radio_fail_state:
 	default:
 		if (d >= 0)
 		{
