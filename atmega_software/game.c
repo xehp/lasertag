@@ -82,9 +82,11 @@ enum
 
 static int8_t game_state = 0;
 static uint32_t msg_counter = 0;
-static int16_t game_timer_ms = 0;
+static int32_t game_timer_ms = 0;
 static int8_t hit_flag = 0;
 static int8_t log_game_state = 0;
+static int8_t trig_state = 0;
+static int32_t trig_time_ms = 0;
 
 void game_init(void)
 {
@@ -332,8 +334,9 @@ static void enter_vib_state(void)
 
 void game_process(void)
 {
-	const int16_t t = avr_systime_ms_16();
-	const int16_t d = t-game_timer_ms;
+	const int32_t t = avr_systime_ms_32();
+	const int32_t d = t-game_timer_ms;
+	const int8_t trig = TRIGGER_READ();
 
 #if 1
 
@@ -425,7 +428,7 @@ void game_process(void)
 			{
 				enter_vib_state();
 			}
-			else if (TRIGGER_READ())
+			else if (trig)
 			{
 				uint8_t c = translate_to_ir_code(ee.player_number);
 				UART_PRINT_P("tx ");
@@ -466,7 +469,7 @@ void game_process(void)
 			{
 				enter_vib_state();
 			}
-			else if (!TRIGGER_READ())
+			else if (!trig)
 			{
 				//UART_PRINT_P("off\r\n");
 				game_state = trigger_released;
@@ -545,19 +548,25 @@ void game_process(void)
 	}
 
 	beep_fifo_put(MID_TONE, 5000);
-
-	int8_t trig = TRIGGER_READ();
-
-	if (trig != log_game_state)
-	{
-		UART_PRINT_P("gs ");
-		uart_print_hex4(trig);
-		uart_print_crlf();
-		log_game_state = trig;
-	}
-
 #endif
 
+	if (trig != trig_state)
+	{
+		UART_PRINT_P("ts ");
+		uart_print_hex4(trig);
+		uart_print_crlf();
+		trig_state = trig;
+		trig_time_ms = t;
+	}
+	else
+	{
+		const int32_t dt = t - trig_time_ms;
+		if (((trig) && (dt>6000)) || ((trig) && (dt>3600000)))
+		{
+			// power off
+			RELAY_OFF();
+		}
+	}
 }
 
 void game_tick_s()
@@ -568,3 +577,4 @@ int8_t game_get_state()
 {
 	return game_state;
 }
+

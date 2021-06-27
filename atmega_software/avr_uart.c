@@ -179,7 +179,7 @@ int uart_getchar()
   /* Wait for data to be received */
   if (UART_INBUF_EMPTY())
   {
-    wdt_reset();
+	avr_wtd_reset_and_idle();
     return -1;
   }
 

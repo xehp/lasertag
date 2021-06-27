@@ -74,7 +74,7 @@ static void interpret_get(char *ptr)
 			LOG_INT16_P("id", ee.ID);
 			break;
 		case 'm':
-			LOG_INT16_P("n", ee.microVoltsPerUnit);
+			LOG_INT16_P("m", ee.microVoltsPerUnit);
 			break;
 		case 'n':
 			LOG_INT16_P("n", ee.player_number);
@@ -117,7 +117,7 @@ static void interpret_set(char *ptr)
 			break;
 		case 'm':
 			ee.microVoltsPerUnit = utility_atoll(ptr+1);
-			LOG_INT16_P("m", ee.player_number);
+			LOG_INT16_P("m", ee.microVoltsPerUnit);
 			break;
 		case 'n':
 			ee.player_number = utility_atoll(ptr+1);

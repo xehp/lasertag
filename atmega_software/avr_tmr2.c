@@ -406,12 +406,13 @@ SIGNAL (TIMER2_COMPA_vect)
 
 }
 
+
 int64_t avr_tmr2_get_tick_64(void)
 {
 	int64_t tmp;
-	TIMSK2&=(unsigned char)~(1<<TOIE2); // disable interrupt, I hope
+	cli(); // disable global interrupts
 	tmp=timer2count;
-	TIMSK2|=(1<<TOIE2); // enable interrupt
+	sei(); // enable global interrupts
 	return tmp;
 }
 
@@ -419,9 +420,9 @@ int64_t avr_tmr2_get_tick_64(void)
 int16_t avr_tmr2_get_tick_16(void)
 {
 	int16_t tmp;
-	TIMSK2&=(unsigned char)~(1<<TOIE2); // disable interrupt, I hope
+	cli(); // disable global interrupts
 	tmp=timer2count;
-	TIMSK2|=(1<<TOIE2); // enable interrupt
+	sei(); // enable global interrupts
 	return tmp;
 }
 
@@ -475,13 +476,13 @@ void avr_tmr2_init(void)
 	#endif
 	#endif
 
+    // enable tmr2 interrupts
+    // Timer/Counter2 Output Compare Match Interrupt Enable
+	TIMSK2 |= /*(1<<TOIE2) ||*/ (1<<OCIE2A);
 
-
-	//TIMSK2|=(1<<TOIE2); // enable interrupt
-
-	TIMSK2|=(1<<OCIE2A); // Timer/Counter2 Output Compare Match Interrupt Enable
-
-
+	// If tmr2 interrupts need to be disabled do:
+	//TIMSK2 &= (unsigned char)~(/*(1<<TOIE2) ||*/ (1<<OCIE2A));
+	// Or just use cli/sei.
 }
 
 
@@ -512,6 +513,8 @@ void avr_tmr2_pwm_off(void)
 {
 	// stop
 	TCCR2B &= ~(7 << CS20);
+
+	// TODO Make sure OC2A & OC2B are same
 }
 
 // set up hardware (port directions, registers etc.)

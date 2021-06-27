@@ -155,7 +155,7 @@ void avr_wtd_reset_and_idle(void)
 }
 
 // Only power (battery charging supervision) is allowed to call this reset.
-void avr_wtd_reset_power(void)
+void avr_wtd_reset_from_power(void)
 {
 	power_wtd=-1;
 	avr_wtd_reset_and_idle();
@@ -331,6 +331,19 @@ void avr_init()
 }
 
 int64_t avr_systime_ms_64(void)
+{
+#ifdef AVR_SYS_USE_TMR0
+	return AVR_TMR0_TRANSLATE_TICKS_TO_MS_64(avr_tmr0_get_tick_64());
+#elif (defined AVR_SYS_USE_TMR2) && (AVR_TMR2_TICKS_PER_SEC == 1000)
+	return avr_tmr2_get_tick_64();
+#elif defined AVR_SYS_USE_TMR2
+	return AVR_TMR2_TRANSLATE_TICKS_TO_MS_64(avr_tmr2_get_tick_64());
+#else
+#error
+#endif
+}
+
+int32_t avr_systime_ms_32(void)
 {
 #ifdef AVR_SYS_USE_TMR0
 	return AVR_TMR0_TRANSLATE_TICKS_TO_MS_64(avr_tmr0_get_tick_64());

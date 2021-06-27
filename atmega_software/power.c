@@ -26,6 +26,21 @@ History
 TODO Use Atmega internal temp sensor so we can avoid charging at cold temp.
 
 
+
+How to calibrate voltage measuring
+
+Issue command "g v" to get voltage_reading.
+Issue command "g m" to get old_microVoltsPerUnit.
+Measure also battery voltage with a good voltage meter to get measured_voltage.
+new_microVoltsPerUnit = measured_voltage*old_microVoltsPerUnit/voltage_reading
+issue command "s m <new_microVoltsPerUnit>"
+issue command "e" to save.
+reboot for setting to take effect, command "r".
+Example:
+4100*5825/3970 -> 6016
+
+
+
 References:
 [1] https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061B.pdf
 [2] https://batteryuniversity.com/learn/article/charging_lithium_ion_batteries
@@ -505,7 +520,7 @@ void power_tick_s(void)
 	}
 
 
-    avr_wtd_reset_power();
+    avr_wtd_reset_from_power();
 }
 
 uint16_t power_get_voltage_mV()

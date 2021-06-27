@@ -30,7 +30,8 @@ History
 // Use 0 or 1 here
 // For HW 2021-04-05 use HW_VERSION 0
 // For HW 2021-04-23 or 2021-04-27 use 1
-// For HW 2021-05-27 use HW_VERSION 2
+// For HW 2021-05-27 use HW_VERSION 2 (wrong transistor was used)
+// For HW after 2021-05-27 it is so far HW_VERSION 1 to use.
 #define HW_VERSION 2
 
 #define AVR_FOSC 16000000L

@@ -339,6 +339,9 @@ void avr_tmr0_init(void)
 		#elif AVR_FOSC == 8000000L
 		// With 8 MHz OCR0A=106 should give 38.1 KHz out
 		OCR0A = 106; // should give 38.1 KHz
+		#elif AVR_FOSC == 7370000L
+		// With 8 MHz OCR0A=106 should give 38.1 KHz out
+		OCR0A = 98; // should give 38.0 KHz
 		#else
 		#error
 		#endif
@@ -352,6 +355,7 @@ void avr_tmr0_init(void)
 	// set pin OC0B to output PD5
 	// That is pin 11 on 28 pin ATMEGAS
 	#if HW_VERSION == 2
+	// For HW 2021-05-27 use HW_VERSION 2 (wrong transistor was used)
 	// Output is active low so set it to high (one)
     PORTD |= (1 << PD5);
     DDRD |= (1 << DDD5);
