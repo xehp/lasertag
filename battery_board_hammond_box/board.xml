@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="D">
+  <design>
+    <source>/home/henrik/git/ir_tag/kicad/battery_board_hammond_box/board.sch</source>
+    <date>mån 14 jun 2021 23:00:04</date>
+    <tool>Eeschema 5.1.5+dfsg1-2build2</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>Pointer board 2021</title>
+        <company>www.drekkar.com</company>
+        <rev/>
+        <date>2021-06-06</date>
+        <source>board.sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="U32">
+      <value>TSOP34S40F</value>
+      <footprint>OptoDevice:Vishay_MOLD-3Pin</footprint>
+      <datasheet>http://www.vishay.com/docs/82669/tsop32s40f.pdf</datasheet>
+      <libsource lib="board-rescue" part="TSOP34S40F-Interface_Optical" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60E588A8</tstamp>
+    </comp>
+    <comp ref="U30">
+      <value>TSOP34S40F</value>
+      <footprint>OptoDevice:Vishay_MOLD-3Pin</footprint>
+      <datasheet>http://www.vishay.com/docs/82669/tsop32s40f.pdf</datasheet>
+      <libsource lib="board-rescue" part="TSOP34S40F-Interface_Optical" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60F02CB7</tstamp>
+    </comp>
+    <comp ref="C32">
+      <value>10uF</value>
+      <footprint>Capacitor_SMD:C_1206_3216Metric</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="board-rescue" part="C-Device-transistor_board-rescue" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60FC0BD1</tstamp>
+    </comp>
+    <comp ref="R70">
+      <value>10</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="board-rescue" part="R-Device-transistor_board-rescue" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>6087E190</tstamp>
+    </comp>
+    <comp ref="D71">
+      <value>red</value>
+      <footprint>LED_THT:LED_D3.0mm</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="board-rescue" part="LED-Device" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60CBCB1B</tstamp>
+    </comp>
+    <comp ref="R71">
+      <value>10</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="board-rescue" part="R-Device-transistor_board-rescue" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60CBCB25</tstamp>
+    </comp>
+    <comp ref="R3">
+      <value>10K</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="board-rescue" part="R-Device-transistor_board-rescue" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60CD3A0C</tstamp>
+    </comp>
+    <comp ref="J11">
+      <value>Conn_01x02</value>
+      <footprint>Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60CEE1C0</tstamp>
+    </comp>
+    <comp ref="R32">
+      <value>10</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="board-rescue" part="R-Device-transistor_board-rescue" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60D20D99</tstamp>
+    </comp>
+    <comp ref="R30">
+      <value>10</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="board-rescue" part="R-Device-transistor_board-rescue" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60D23924</tstamp>
+    </comp>
+    <comp ref="C30">
+      <value>10uF</value>
+      <footprint>Capacitor_SMD:C_1206_3216Metric</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="board-rescue" part="C-Device-transistor_board-rescue" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>608BFA1F</tstamp>
+    </comp>
+    <comp ref="F11">
+      <value>Fuse</value>
+      <footprint>Resistor_SMD:R_1206_3216Metric</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Device" part="Fuse" description="Fuse"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60BE906B</tstamp>
+    </comp>
+    <comp ref="D70">
+      <value>red</value>
+      <footprint>LED_THT:LED_D3.0mm</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="board-rescue" part="LED-Device" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>6075D79F</tstamp>
+    </comp>
+    <comp ref="J2">
+      <value>Conn_01x04-Connector_Generic</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_2x02_P2.54mm_Vertical</footprint>
+      <libsource lib="board-rescue" part="Conn_01x04-Connector_Generic" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60BF9740</tstamp>
+    </comp>
+    <comp ref="R79">
+      <value>10K</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="board-rescue" part="R-Device-transistor_board-rescue" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60BF5793</tstamp>
+    </comp>
+    <comp ref="Q72">
+      <value>Q_PMOS_GSD</value>
+      <footprint>Package_TO_SOT_SMD:SOT-23</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="Device" part="Q_PMOS_GSD" description="P-MOSFET transistor, gate/source/drain"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60C5F73C</tstamp>
+    </comp>
+    <comp ref="C71">
+      <value>1uF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="board-rescue" part="C-Device-transistor_board-rescue" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60C64E3A</tstamp>
+    </comp>
+    <comp ref="C79">
+      <value>10nF</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <datasheet>~</datasheet>
+      <libsource lib="board-rescue" part="C-Device-transistor_board-rescue" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>60C71F3E</tstamp>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="Connector_Generic" part="Conn_01x02">
+      <description>Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x02</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="Fuse">
+      <description>Fuse</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>*Fuse*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">F</field>
+        <field name="Value">Fuse</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="Q_PMOS_GSD">
+      <description>P-MOSFET transistor, gate/source/drain</description>
+      <docs>~</docs>
+      <fields>
+        <field name="Reference">Q</field>
+        <field name="Value">Q_PMOS_GSD</field>
+      </fields>
+      <pins>
+        <pin num="1" name="G" type="input"/>
+        <pin num="2" name="S" type="passive"/>
+        <pin num="3" name="D" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="board-rescue" part="C-Device-transistor_board-rescue">
+      <footprints>
+        <fp>C_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C-Device-transistor_board-rescue</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="board-rescue" part="Conn_01x04-Connector_Generic">
+      <footprints>
+        <fp>Connector*:*_1x??_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x04-Connector_Generic</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="board-rescue" part="LED-Device">
+      <footprints>
+        <fp>LED*</fp>
+        <fp>LED_SMD:*</fp>
+        <fp>LED_THT:*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">LED-Device</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="board-rescue" part="R-Device-transistor_board-rescue">
+      <footprints>
+        <fp>R_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">R</field>
+        <field name="Value">R-Device-transistor_board-rescue</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="board-rescue" part="TSOP34S40F-Interface_Optical">
+      <footprints>
+        <fp>Vishay*MOLD*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">TSOP34S40F-Interface_Optical</field>
+        <field name="Footprint">OptoDevice:Vishay_MOLD-3Pin</field>
+      </fields>
+      <pins>
+        <pin num="1" name="OUT" type="output"/>
+        <pin num="2" name="GND" type="power_in"/>
+        <pin num="3" name="Vs" type="power_in"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="Connector_Generic">
+      <uri>/usr/share/kicad/library/Connector_Generic.lib</uri>
+    </library>
+    <library logical="Device">
+      <uri>/usr/share/kicad/library/Device.lib</uri>
+    </library>
+    <library logical="board-rescue">
+      <uri>/home/henrik/git/ir_tag/kicad/battery_board_hammond_box/board-rescue.lib</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="Net-(F11-Pad1)">
+      <node ref="F11" pin="1"/>
+      <node ref="J11" pin="2"/>
+    </net>
+    <net code="2" name="Net-(Q72-Pad3)">
+      <node ref="Q72" pin="3"/>
+      <node ref="R70" pin="1"/>
+      <node ref="R71" pin="1"/>
+    </net>
+    <net code="3" name="GND">
+      <node ref="C32" pin="2"/>
+      <node ref="J2" pin="1"/>
+      <node ref="C71" pin="2"/>
+      <node ref="U32" pin="2"/>
+      <node ref="U30" pin="2"/>
+      <node ref="J11" pin="1"/>
+      <node ref="D71" pin="1"/>
+      <node ref="D70" pin="1"/>
+      <node ref="C30" pin="2"/>
+    </net>
+    <net code="4" name="Net-(F11-Pad2)">
+      <node ref="J2" pin="4"/>
+      <node ref="F11" pin="2"/>
+    </net>
+    <net code="5" name="Net-(C79-Pad2)">
+      <node ref="R79" pin="1"/>
+      <node ref="Q72" pin="1"/>
+      <node ref="C79" pin="2"/>
+    </net>
+    <net code="6" name="Net-(C32-Pad1)">
+      <node ref="U32" pin="3"/>
+      <node ref="C32" pin="1"/>
+      <node ref="R32" pin="2"/>
+    </net>
+    <net code="7" name="Net-(D70-Pad2)">
+      <node ref="R70" pin="2"/>
+      <node ref="D70" pin="2"/>
+    </net>
+    <net code="8" name="Net-(C30-Pad1)">
+      <node ref="C30" pin="1"/>
+      <node ref="U30" pin="3"/>
+      <node ref="R30" pin="2"/>
+    </net>
+    <net code="9" name="Net-(J2-Pad3)">
+      <node ref="U30" pin="1"/>
+      <node ref="R3" pin="1"/>
+      <node ref="U32" pin="1"/>
+      <node ref="J2" pin="3"/>
+      <node ref="R79" pin="2"/>
+    </net>
+    <net code="10" name="VDD">
+      <node ref="R3" pin="2"/>
+    </net>
+    <net code="11" name="VCC">
+      <node ref="J2" pin="2"/>
+      <node ref="C79" pin="1"/>
+      <node ref="Q72" pin="2"/>
+      <node ref="R32" pin="1"/>
+      <node ref="C71" pin="1"/>
+      <node ref="R30" pin="1"/>
+    </net>
+    <net code="12" name="Net-(D71-Pad2)">
+      <node ref="D71" pin="2"/>
+      <node ref="R71" pin="2"/>
+    </net>
+  </nets>
+</export>

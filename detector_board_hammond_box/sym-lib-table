@@ -1,0 +1,7 @@
+(sym_lib_table
+  (lib (name drekkar_com)(type Legacy)(uri ${KIPRJMOD}/drekkar_com.lib)(options "")(descr "")(disabled))
+  (lib (name board-rescue)(type Legacy)(uri ${KIPRJMOD}/board-rescue.lib)(options "")(descr ""))
+  (lib (name 2021-04-01_19-01-27)(type Legacy)(uri ${KIPRJMOD}/ultra-librarian/2021-04-01_19-01-27/2021-04-01_19-01-27.lib)(options "")(descr "")(disabled))
+  (lib (name eit_proprietary)(type Legacy)(uri /home/henrik/git/drekkar_kicad/eit_kicad_libraries/eit_symbol_library/eit_proprietary.lib)(options "")(descr ""))
+  (lib (name esp32-cam)(type Legacy)(uri /home/henrik/tmp/esp32-cam.lib)(options "")(descr "")(disabled))
+)

@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name snapeda)(type KiCad)(uri ${KIPRJMOD}/snapeda)(options "")(descr ""))
+  (lib (name eit_footprints)(type KiCad)(uri /home/henrik/git/RPi_HATs/eit_kicad_libraries/eit_footprints.pretty)(options "")(descr ""))
+)

@@ -1,0 +1,772 @@
+
+
+C10, C11, C18, C92
+	1uF ±10% 50V X7R 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT RoHS
+	jlcpcb:C28323
+
+
+C20, C21, C26, C29, C30, C31, C32, C91
+	Multilayer Ceramic Capacitors MLCC - SMD/SMT 100nF 50V 0805 RoHS
+	jlcpcb:C49678
+
+
+
+D1, D2
+	Schottky Diode
+
+	‎DIODE SCHOTTKY 60V 2A DO15 
+	SMC Diode Solutions
+	SB260TA‎
+	digikey:1655-1520-1-ND‎
+
+
+	For THT Diodes: Typically the katode (ring marked end) to the square pad. So Anode is the round pad.
+
+
+	40V 1A 600mV @ 1A SOD-123 Schottky Barrier Diodes (SBD) RoHS
+	jlcpcb:C8598
+
+
+D10
+	Zener diode, 5.0 to 6.8 Volt.
+	Littelfuse SA5.0A 	
+	ESD Suppressors / TVS Diodes SA5.0A Uni-Directional
+	mouser:576-SA5.0A 
+
+
+	Littelfuse Inc.
+	‎SA5.0A‎
+	TVS DIODE 5V 9.2V DO204AC 
+	digikey:SA5.0ALFCT-ND‎
+
+
+	P6SMB6.8CA 
+	TVS SMB(DO-214AA) RoHS
+	jlcpcb:C78395
+	
+
+D5, D7, D12
+	LED with builtin resistor for 5V
+
+	Green:
+	digikey:754-1891-ND
+
+	Red:
+	digikey:67-1068-ND
+	
+	Yellow:
+	farnell:48472747
+
+
+	For LEDs: Typically the katode (shorter leg) to square pad. So Anode (long leg) is the round pad.
+
+
+D71, D72, D73, D74
+	
+	digikey:C503B-RCN-CW0Z0AA2CT-ND
+
+
+F11, F12
+
+	First generations (to 2021-05-27):
+		PTC RESET FUSE 120V 300MA RADIAL 
+		Bel Fuse Inc.
+		0ZRM0030FF1E‎
+		digikey:507-1397-ND‎
+	‎
+	SMD version (from 2021-06-10):
+
+		If the above is not enough perhaps F11 need this
+		30V 460mA 1206 PTC Resettable Fuses RoHS
+		jlcpcb:C69680
+
+
+	F11 is probably not needed, can be omitted later.
+
+J1
+	Molex 
+	CONN HEADER VERT 2POS 2.54MM 
+	digikey:WM2700-ND
+
+	button or switch
+
+	cheep one:
+		SWITCH PUSH SPST-NO 3A 120V 
+		‎E-Switch
+		RP3502ARED‎
+		digikey:EG1930-ND‎
+
+	high durability one:
+		SWITCH PUSHBUTTON SPST-NO 2A 48V 
+		E-Switch
+		‎PV2H240BB‎
+		digikey:EG5144-ND‎
+
+
+	Once the 3d drawings have been made we need to decide how the trigger shall be implemented.
+	Perhaps it will be a microswith instead. Like:
+		SWITCH SNAP ACTION SPDT 5A 125V 
+		E-Switch
+		‎MS0850502F020S1A‎
+		digikey:EG4542-ND‎
+	
+
+J2
+	Molex ‎0022292041‎
+	CONN HEADER VERT 4POS 2.54MM 
+	digikey:WM2746-ND‎
+
+J10
+	Molex 
+	CONN HEADER VERT 2POS 2.54MM 
+	digikey:WM2700-ND
+
+
+J12
+	USB
+
+	micro USB
+	
+	first 3 generations
+
+		Used one of these, it worked and fitted the PCB, but its out of stock:
+			USB - micro B USB 2.0 Uttag Kontakt 5 Positioner Ytmontering, högervinklad; genomgående hål		
+			Amphenol ICC (FCI), 10118194-0001LF
+			digikey:609-4618-1-ND
+	
+		Have used this also (worked and fitted the PCB):
+			Molex
+			CONN RCPT USB2.0 MICRO B SMD R/A 
+			‎1050170001
+			footprint:Connector_USB:USB_Micro-B_Molex-105017-0001‎
+			digikey:WM1399CT-ND‎
+
+		Perhaps this (have not tried this one):
+			GCT
+			MICRO B SKT, BOTTOM-SMT, R/A, 30 
+			‎USB3076-30-A‎
+			footprint:Connector_USB:USB_Micro-B_GCT_USB3076-30-A
+			digikey:2073-USB3076-30-ACT-ND‎
+
+
+
+		To be fully correct the above ones shall sit on the underside of PCB?
+		But that may be fine since we might mount our PCB upside down.	
+		Or this on upper side (have not tried this one)?
+			Molex
+			CONN RCPT USB2.0 MICRO B SMD R/A 
+			‎1051640001‎
+			digikey:WM11263CT-ND‎
+
+
+
+
+	JLCPCB adapted
+	
+		SHOU HAN, MicroXNJ
+		footprint: USB_Micro_B_Female_jlcpcb.
+		jlcpcb:C404969
+
+		SHOU HAN, MICRO XNJ ZB
+		footprint: USB_Micro_B_Female_jlcpcb.
+		jlcpcb:C668587
+		
+		XKB Connectivity
+		footprint: USB_Micro_B_Female_jlcpcb.
+		jlcpcb:C319164
+
+		Jing Extension of the Electronic Co.
+		footprint: USB_Micro_B_Female_jlcpcb.
+		jlcpcb:C10418
+
+
+J15
+	Patch area if we decide we do not need PS10.
+	If PS10 is omitted then join pins 3 & 4 here. 
+	That way instead of 5-8 Volt on +5V/+8V line we get +Batt which will work also.
+
+J40
+	Molex 
+	CONN HEADER VERT 4POS 2.54MM 
+	This component is optional for now. Only needed if external detectors shall be used.
+
+	Almost same footprint:
+	CONN-TH_47053-1000
+	jlcpcb:C240840?
+
+
+J91
+	Molex 
+	CONN HEADER VERT 2POS 2.54MM 
+	digikey:WM2700-ND
+
+
+	Speaker
+	SP-4005Y
+	digikey:433-1270-ND
+
+J51
+	Molex 
+	CONN HEADER VERT 2POS 2.54MM 
+	digikey:WM2700-ND
+
+
+	IR Diode
+	‎INL-3AHIR15‎
+	Inolux
+	THROUGH HOLE / STANDARD 3MM T1 
+	digikey:1830-INL-3AHIR15-ND‎
+
+
+J20
+	Radio transiever
+	‎RFM75-S‎
+	RF Solutions
+	RX TXRX MOD ISM>1GHZ TRC ANT SMD 
+	1,9V ~ 3,6V
+	digikey:RFM75-S-ND‎
+
+	Stiftlist vinklad
+	‎GRPB081VWCN-RC‎
+	Sullins Connector Solutions
+	CONN HEADER R/A 8POS 1.27MM 
+	digikey:S9016E-08-ND‎
+
+	socket
+
+		RECEPTACLE STRIP, 1.27MM, VERTIC 
+		Adam Tech
+		HRS-1B-10-GA‎
+		The radio need 8 pos, this has two extra. One to be unused and one for reset.
+		This way the ISP can also use this connector.
+		digikey:2057-HRS-1B-10-GA-ND‎
+		‎
+		Harwin Inc.
+		CONN RCPT 10POS 0.05 GOLD PCB 
+		M50-3031042‎
+		digikey:952-3580-ND‎
+	‎
+		Sullins Connector Solutions
+		CONN HDR 10POS 0.05 GOLD PCB 
+		‎LPPB101NFFN-RC‎
+		digikey:S9008E-10-ND‎
+
+	old
+		Stiftlist rak
+		‎GRPB081VWVN-RC‎
+		Sullins Connector Solutions
+		CONN HEADER VERT 8POS 1.27MM 
+		digikey:S9014E-08-ND‎
+
+
+
+
+J61
+	Molex 
+	CONN HEADER VERT 2POS 2.54MM 
+	digikey:WM2700-ND
+
+	LASER DIODE 650NM 5MW 10MM DIA 
+	Adafruit Industries LLC ‎1054‎
+	digikey:1528-1391-ND‎
+
+
+J11
+
+	‎B2B-PH-K-S(LF)(SN)‎
+	JST Sales America Inc.
+	CONN HEADER VERT 2POS 2MM 
+	digikey:455-1704-ND‎
+
+	Luxorparts 18650 Li-ion-batteri 3,7 V med kontakt
+	kjell:87925
+	
+	Lithium Ion Cylindrical Battery - 3.7v 2200mAh 
+	https://www.adafruit.com/product/1781
+
+
+
+	alternatives:
+		‎BH-18650-W‎
+		MPD (Memory Protection Devices)
+		BATTERY HOLDER 18650 6" LEADS 
+		digikey:BH-18650-W-ND‎
+
+		Battery 18650
+		BATTERY LITHIUM 3.7V 2.2AH
+		digikey:1528-1836-ND
+
+
+	Smaller 1200 mAh
+	Li-Po-batteri på 3,7 V med 2 mm JST-PH-kontakt. Mått: 63x36x4,7 mm
+	kjell:87924
+	
+	
+	More batteries	
+		https://www.fogstar-wholesale.co.uk/product/molicel-p42a/
+		https://www.18650batterystore.com/collections/18650-batteries
+		https://www.batterikungen.se/batteri/ovriga-batterier/hogtalare/batteri-till-harman-kardon-onyx-studio-1-3-400-mah.html
+		https://www.batterikungen.se/batteri/18650-batterier/laddningsbart-18650-2-850-mah-3-7-v-li-ion-lodoron.html
+
+	Laddningsbart 18650 - 2.850 mAh - 3.7 V Li-ion - Lödöron
+	batterikungen:805-174
+
+J81
+	Molex 
+	CONN HEADER VERT 2POS 2.54MM 
+	digikey:WM2700-ND
+
+	https://www.robotshop.com/en/seeedstudio-mini-vibrating-motor.html
+
+
+K10
+	‎1-1462039-5‎
+	TE Connectivity Potter & Brumfield Relays
+	RELAY TELECOM DPDT 2A 3VDC 
+	‎digikey:PB1167-ND‎
+
+
+	Alternatives (not pin compatible):
+		Use solid state relay, such as:
+		
+		SSR RELAY SPST-NO 2A 0-40V
+		Omron Electronics Inc-EMC Div / G3VM-41AY1
+		Solid State Relay SPST-NO (1 Form A) 4-DIP (0.300", 7.62mm)
+		digikey:Z5417-ND
+
+
+
+		SSR RELAY SPST-NO 3A 0-60V
+		Solid State  SPST-NO (1 Form A) 4-DIP (0,300", 7,62mm)
+		Toshiba Semiconductor and Storage, TLP3555A(F
+		digikey:TLP3555A(F-ND
+
+		socket 4 pin DIL
+		digikey:1212-1001-ND‎
+
+
+
+L91
+
+	First generations THT (to 2021-05-27)
+		‎78F100J-TR-RC‎
+		Bourns Inc.
+		FIXED IND 10UH 370MA 750 MOHM TH 
+		digikey:78F100J-TR-RCCT-ND‎
+
+		If this compunent is unavailable put 4.7 Ohm resistor temporarily and replace it later.
+
+	SMD version (from 2021-06-10):
+
+		10uH ±10% 25mA 800mΩ 1206 Inductors (SMD) RoHS
+		jlcpcb:C1051
+
+
+
+Q41, Q51, Q61, Q71, Q81
+
+	HW after 2021-06-10
+
+	SMD
+		Package_TO_SOT_SMD:SOT-23
+		SOT-23-3
+			1.BASE
+			2.EMITTER
+			3.COLLECTOR
+			
+		Transistors (NPN/PNP) NPN 1.5A 25V SOT-23(SOT-23-3)
+		jlcpcb:C2150
+
+		Alternatives if C2150 is out of stock.
+		jlcpcb:C2146
+		jlcpcb:C6749
+
+
+
+	HW 2021-05-27
+
+		Transistors (NPN/PNP) PNP 600mA 150V SOT-23(SOT-23-3) RoHS
+		jlcpcb:C8326
+
+		NOTE! This was mistakenly a PNP. So SW on this HW will be active low instead of active high as intended.
+
+
+
+	First generations THT (to 2021-04-27)
+
+		Package_TO_SOT_THT:TO-92_Inline_Wide
+
+			Most NPN transistors minimum 25 Volt compatible with this configuration:
+				1.EMITTER
+				2.BASE
+				3.COLLECTOR
+
+			TRANS NPN 40V 0.2A TO92 
+			Micro Commercial Co
+			2N3904-AP‎
+			digikey:2N3904-APCT-ND‎
+
+			TRANS NPN 40V 200MA TO92-3 
+			ON Semiconductor
+			‎2N3904BU‎
+			digikey:2N3904FS-ND‎
+
+
+			Its also possible to use transistors with config as below but then REMEMBER to mount them rotated 180.
+				1.COLLECTOR
+				2.BASE
+				3.EMITTER
+
+
+R3
+	3.3kΩ ±1% 0.125W ±100ppm/℃ 0805 Chip Resistor - Surface Mount 		
+	jlcpcb:C26010
+
+
+R10
+
+	First generations THT (to 2021-05-27)
+
+		2.2 to 10 Ohm, >= 3 W
+		
+		
+		RES 3.30 OHM 3W 5% AXIAL 
+		TE Connectivity Passive Product
+		‎RR03J3R3TB‎
+		digikey:A138454CT-ND‎
+		
+		
+		or if 2 W is enough:
+				RES 4.7 OHM 10% 2W AXIAL 
+				Vishay Beyschlag/Draloric/BC Components
+				PR02FS0204708KR500‎
+				digikey:BC3350CT-ND‎
+			‎
+			or 
+				RES 3.3 OHM 2W 5% AXIAL 
+				Stackpole Electronics Inc
+				‎RSMF2JT3R30‎
+				digikey:RSMF2JT3R30CT-ND‎
+
+		Or if 5 W is wanted:
+			RES 3.3 OHM 5W 5% AXIAL 
+			Vishay Beyschlag/Draloric/BC Components
+			‎AC05000003308JAC00‎
+			digikey:BC3442CT-ND‎
+
+
+		Tested with 10 Ohm
+		It works but charging is very slow.
+		Probably 4.7 Ohm will be fine.
+
+
+	SMD version (from 2021-06-10):
+
+		Same as R71, R72, R73, R74
+		1206, 10 Ohm (or less) 1/4 W or more
+
+		10Ω ±1% 0.25W ±400ppm/℃ 1206 Chip Resistor - Surface Mount RoHS
+		jlcpcb:C17903
+			
+
+
+R18
+	47 KOhm	
+	47kΩ ±1% 0.125W ±100ppm/℃ 0805 Chip Resistor - Surface Mount 
+	jlcpcb:C17713
+
+	
+R5, R19
+	10 KOhm	
+	Chip Resistor - Surface Mount 10KOhms ±1% 1/8W 0805 RoHS
+	jlcpcb:C17414
+
+
+R41, R51, R61, R78, R81
+	100Ω ±1% 0.125W ±100ppm/℃ 0805 Chip Resistor - Surface Moun
+	jlcpcb:C17408
+
+
+
+R71, R72, R73, R74
+	1206, 10 Ohm (or less) 1/4 W or more
+
+	10Ω ±1% 0.25W ±400ppm/℃ 1206 Chip Resistor - Surface Mount RoHS
+	jlcpcb:C17903
+
+
+
+U10
+
+	First generations (to 2021-05-27):
+		IC REG LINEAR 3.3V 500MA TO220-3 
+		Microchip Technology
+		‎MCP1825S-3302E/AB‎
+		digikey:MCP1825S-3302E/AB-ND‎
+
+		heatsink
+		V8508B
+		digikey:A10746-ND
+
+
+	SMD version (from 2021-06-10):
+
+
+		NOTE pin numbering is different
+
+			Perhaps this:
+			SOT-23-3L
+			Low Dropout Regulators(LDO) Positive Fixed 680mV @ 100mA 6V 3.3V 200mA SOT-23-3L RoHS
+			jlcpcb:C5446
+
+			SOT-23-5
+			Low Dropout Regulators(LDO) Positive Fixed 75mV @ 100mA 6V 3.3V 700mA SOT-23-5 RoHS
+			XC6210B332MR-G
+
+
+			Probably 3 Volt also good (have been using 3.3 Volt)
+			SOT-89-3
+			jlcpcb:C259526
+
+
+		Using 2.7 Volt
+
+			SOT-23-5
+			TPS78227DDCR
+			jlcpcb:C202148
+
+		Will Atmega run at 16MHz with just 2.7 Volt? 12 MHz should be good.
+
+
+U20
+	‎ATMEGA328P-PU‎
+	Microchip Technology
+	IC MCU 8BIT 32KB FLASH 28DIP 
+	digikey:ATMEGA328P-PU-ND‎
+
+	Socket 28 pin DIL perhaps this:
+		CONN IC DIP SOCKET 28POS GOLD 
+		On Shore Technology Inc.
+		‎SA283040‎
+		digikey:ED3027-ND‎
+
+
+	Alternatives
+		Could use SMD, ATMEGA328P-AU
+		8-Bit FLASH AVR 20MHz 1.8V ~ 5.5V TQFP-32_7x7x08P ATMEL & AVR RoHS
+		jlcpcb:C14877
+
+
+U30, U31, U32, U33
+	IR 38kHz detektor/sensor
+	‎TSOP34438‎
+	Vishay Semiconductor Opto Division	
+	SENSOR REMOTE REC 38.0KHZ 45M
+	2,5V ~ 5,5V 
+	digikey:TSOP34438-ND‎
+
+
+U91
+	‎TC1427CPA‎
+	Microchip Technology
+	IC GATE DRVR LOW-SIDE 8DIP 
+	digikey:TC1427CPA-ND‎
+
+
+	Socket 8 pin
+		digikey:1212-1003-ND
+
+
+	TODO When a speaker was connected the signal got a bit weak. 
+	Is it possible to find a stronger driver?
+	Or another speaker. Speaker was SP-4005Y (digikey:433-1270-ND)
+	
+
+	Perhaps this one is a better choise:
+	Texas Instruments
+	UCC27424P
+	digikey:296-15869-5-ND
+
+
+Y20
+	CERAMIC RES 16.0000MHZ 30PF T/H 
+	Murata Electronics, ‎CSTLS16M0X55-B0‎
+	digikey:490-1214-ND‎
+
+
+
+Y21
+	Use one of Y20 and Y21, not both.
+	
+	Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm
+
+	16MHz (Atmega will need 3.3 Volt)
+		Yangxing Tech, X322516MLB4SI
+		SMD Crystal Resonators 16MHz ±10ppm SMD-3225_4P RoHS
+		jlcpcb:C13738	
+		An issue is to figure out if this shall have load capacitors.
+		Data sheet say "10pF,20pF,orspecify"!
+		https://www.iqdfrequencyproducts.com/blog/2020/08/03/myths-around-load-capacitance-how-to-choose-the-right-capacitors/
+		So well just try sometging then. Like 2 capacitors at 10 pF and hope it works.
+	
+	12MHz	
+		May want to run on 2.7 Volt so 12 MHz is better here.
+		SMD Crystal Resonators 12MHz ±10ppm SMD-3225_4P RoHS
+		jlcpcb:C9002
+
+
+	See U10 if we use 3.3 Volt or 2.7.
+
+C1, C2
+	10 pF
+	
+	For use with Y21 (not needed if Y20 is used)
+	10pF ±5% 50V C0G 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT RoHS
+	jlcpcb:C1785
+	
+	
+	Or if less capacitance is needed
+	Multilayer Ceramic Capacitors MLCC - SMD/SMT 6pF 50V 0805 RoHS
+	jlcpcb:C67560
+
+
+	Or if more capacitance is needed
+	15pF ±5% 50V C0G 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT RoHS
+	jlcpcb:C1794
+	
+	Or if more capacitance is needed
+	22pF ±5% 50V C0G 0805 Multilayer Ceramic Capacitors MLCC - SMD/SMT RoHS
+	jlcpcb:C1804
+
+
+
+	
+	Or if using smaller footprint
+	10pF ±5% 50V C0G 0402 Multilayer Ceramic Capacitors MLCC - SMD/SMT RoHS
+	jlcpcb:C32949
+
+
+PCB
+	Plot to gerber (at least these files):
+	transistor_board-B_Cu.gbr
+	transistor_board-B_Mask.gbr
+	transistor_board-B_Paste.gbr
+	transistor_board-B_SilkS.gbr
+	transistor_board-Edge_Cuts.gbr
+	transistor_board-F_Cu.gbr
+	transistor_board-F_Mask.gbr
+	transistor_board-F_Paste.gbr
+	transistor_board-F_SilkS.gbr
+
+
+	These two probably not needed but I always sent them so not sure.
+	transistor_board-NPTH.drl
+	transistor_board-PTH.drl
+
+
+
+TODO
+	https://www.tag-connect.com/product/tc2030-idc-6-pin-tag-connect-plug-of-nails-spring-pin-cable-with-legs
+	TC2030-IDC 6-Pin Tag-Connect Plug-of-Nails™ Spring-Pin Cable with Legs	
+
+	Footprint for above was huge, so this one: TC2030-IDC-NL
+	https://www.tag-connect.com/product/tc2030-idc-nl
+
+	Can also be used for serial console.
+	https://www.tag-connect.com/product/tc2030-nl-ftdi-ttl-232r-usb-to-tc2030-no-legs-serial-cable
+
+
+	The above is 6 pin. If I buy that I may not be ably to use it for everything.
+	Perhaps should go with the 10 pin version:
+	TC-2050
+
+
+
+Not used this time, perhaps later:
+
+	If more current is needed F11 & F12:
+		Fuse (not needed if battery has builtin protection)
+		PTC RESET FUSE 90V 900MA RADIAL 
+		digikey:507-1340-ND
+
+	For detector board place IR receivers (SENSOR 38.0KHz) off board (on helmet).
+	Then 3 pin Molex connectors are needed:
+		CONN HEADER VERT 3POS 2.54MM 
+		Molex
+		‎0022292031‎
+		digikey:WM2745-ND‎
+
+
+	Adapter for 6 pin ISP to our 10 pin SPI/Radio connector
+		CONN HEADER VERT 10POS 1.27MM 
+		Mill-Max Manufacturing Corp.
+		‎850-10-010-10-003000‎
+		digikey:ED10276-ND‎
+
+
+	28-pin ZIF socket
+		CONN IC DIP SOCKET 28POS 
+		Adafruit Industries LLC
+		‎382‎
+		digikey:1528-1926-ND‎
+
+
+
+	Level shifter
+		Texas Instruments, SN74LVC4245APWR
+		Transceivers, voltage-level TSSOP-24 74 Series RoHS
+		jlcpcb:C7859
+		
+		
+		
+	USB-B	
+		USB - micro B USB 2.0 Uttag Kontakt 5 Positioner Ytmontering, högervinklad; genomgående hål
+		Amphenol ICC (FCI), 10118194-0001LF
+		digikey:609-4618-1-ND
+
+		CUI Devices
+		CONN RCPT USB2.0 TYPEB 4POS R/A  
+		‎UJ2-BH-W1-TH‎
+		footprint: Connector_USB:USB_B_OST_USB-B1HSxx_Horizontal
+		digikey:102-5887-ND‎
+
+	PS10
+		DC DC CONVERTER 5V 1W 	
+		Recom Power
+		‎ROE-3.305S‎
+		digikey:ROE-3.305S-ND‎
+
+		Skip this one. See J15 about what to do instead.
+
+
+		Alternatively if volume is still to low use a 12 Volt converter (adjust J15 accordinly).
+			DC DC CONVERTER 12V 1W 
+			Murata Power Solutions Inc.
+			‎MEE1S0312SC‎
+			digikey:811-2733-ND‎
+
+
+
+	Alternative CPUs
+		STM32F103C8T6
+		LQFP-48_7.0x7.0x0.5P
+		jlcpcb:C8734
+		https://datasheet.lcsc.com/lcsc/1811151642_STMicroelectronics-STM32F103C8T6_C8734.pdf		
+			page 26/105
+		https://www.programmersought.com/article/82342590635/
+		https://timakro.de/blog/bare-metal-stm32-programming/
+		also search for BluePill
+	
+	
+	Alternative PCB makers:
+		https://oshpark.com
+		
+		
+		
+	Something compleatly different to try:
+		https://www.arduino.cc/en/Guide/MKRVidor4000
+		
+		
+		
+		
+		

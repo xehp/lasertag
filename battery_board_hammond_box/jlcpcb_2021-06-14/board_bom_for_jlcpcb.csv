@@ -1,0 +1,12 @@
+Comment,Designator,Footprint,LCSC
+"10uF","C30,C32","Capacitor_SMD:C_1206_3216Metric",""
+"1uF","C71","Capacitor_SMD:C_0805_2012Metric",""
+"10nF","C79","Capacitor_SMD:C_0805_2012Metric",""
+"red","D70,D71","LED_THT:LED_D3.0mm",""
+"Fuse","F11","Resistor_SMD:R_1206_3216Metric",""
+"Conn_01x02","J11","Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical",""
+"Conn_01x04-Connector_Generic","J2","Connector_PinHeader_2.54mm:PinHeader_2x02_P2.54mm_Vertical",""
+"Q_PMOS_GSD","Q72","Package_TO_SOT_SMD:SOT-23",""
+"10K","R3,R79","Resistor_SMD:R_0805_2012Metric",""
+"10","R30,R32,R70,R71","Resistor_SMD:R_1206_3216Metric",""
+"TSOP34S40F","U30,U32","OptoDevice:Vishay_MOLD-3Pin",""

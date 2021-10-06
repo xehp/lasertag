@@ -1,0 +1,13 @@
+Designator,Val,Package,Mid X,Mid Y,Rotation,Layer
+C30,10uF,C_1206_3216Metric,77.47,-97.285,90,bottom
+C32,10uF,C_1206_3216Metric,150.3,-79.7,270,bottom
+C71,1uF,C_0805_2012Metric,80.1,-72.5,270,bottom
+C79,10nF,C_0805_2012Metric,83.7,-71,180,bottom
+F11,Fuse,R_1206_3216Metric,150.4,-90.3,270,bottom
+Q72,Q_PMOS_GSD,SOT-23,83.8,-75.5,0,bottom
+R3,10K,R_0805_2012Metric,83.185,-89.2025,270,bottom
+R30,10,R_1206_3216Metric,80.645,-97.4575,270,bottom
+R32,10,R_1206_3216Metric,150.3,-85,90,bottom
+R70,10,R_1206_3216Metric,78.9,-79.1,180,bottom
+R71,10,R_1206_3216Metric,150.6,-97.285,90,bottom
+R79,10K,R_0805_2012Metric,83.2,-83.9,270,bottom
