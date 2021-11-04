@@ -189,9 +189,9 @@ void power_init(void)
 static uint64_t filtered_voltage_scaled = 0;
 static uint8_t filtered_values_available = 0;
 
-static uint32_t calcRollingMeanValue(uint32_t latestValue)
+// Calculate a rolling/gliding mean value or exponential moving average (EMA),
+static uint32_t calc_ema_value(uint32_t latestValue)
 {
-	// Calculate a rolling mean value
 	if (filtered_values_available < MEASURING_FILTER_TIME_FACTOR)
 	{
 		filtered_values_available++;
@@ -224,7 +224,7 @@ static void read_adc_and_start_next(void)
 
 		const uint32_t latest_uV = ((uint32_t)pv * MicroVolt_PER_ADC_UNIT);
 
-		const uint32_t filtered_uV = calcRollingMeanValue(latest_uV);
+		const uint32_t filtered_uV = calc_ema_value(latest_uV);
 
 		voltage_mV = filtered_uV / 1000;
 	}
