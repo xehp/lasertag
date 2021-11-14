@@ -40,7 +40,7 @@ History
 
 
 // At 3.425 Volt got ADC value 0x024c (588)
-#define DEFAULT_MicroVolt_PER_ADC_UNIT 5825L
+#define DEFAULT_MicroVolt_PER_ADC_UNIT 5830L
 #define DEFAULT_BATTERY_STOP_CHARGING_MV 4100
 #define DEFAULT_BATTERY_DEPLEATED_AT_MV 3000
 #define DEFAULT_low_battery_warning_mv 3100
@@ -53,18 +53,20 @@ History
 #define DEFAULT_ignore_time_end_ms 50
 
 #if HW_VERSION == 3
-#define DEFAULT_device_type 1
+#define DEFAULT_device_type detector_dev
+#elif HW_VERSION == 5
+#define DEFAULT_device_type target_dev
 #else
-#define DEFAULT_device_type 0
+#define DEFAULT_device_type pointer_dev
 #endif
 #define DEFAULT_player_number -1
 #define DEFAULT_keep_alive_s 150
 #if HW_VERSION == 3
 #define DEFAULT_idle_timeout_s 170
 #else
-#define DEFAULT_idle_timeout_s 500
+#define DEFAULT_idle_timeout_s 1000
 #endif
-#define DEFAULT_hit_time_third_ms 3000
+#define DEFAULT_short_led_blink_ms 2000
 #define DEFAULT_fire_time_half_ms 100
 #define DEFAULT_volume_percent 50
 #define DEFAULT_expected_swhw HW_VERSION
@@ -80,6 +82,10 @@ History
 #define DEFAULT_game_code 0
 #define DEFAULT_serial_nr 0
 #define DEFAULT_signal_strength_pairing_percent 4
+
+#define DEFAULT_flash_led_at_hit_ms 6000
+#define DEFAULT_led_off_time_after_hit_ms 6000
+
 
 // To be sure second receiver works we use only IR input 2 for pairing.
 #define DEFAULT_test_options 2
@@ -103,7 +109,7 @@ EeDataStruct ee={
 	DEFAULT_idle_timeout_s,
 	DEFAULT_BATTERY_DEPLEATED_AT_MV,
 
-	DEFAULT_hit_time_third_ms,
+	DEFAULT_short_led_blink_ms,
 	DEFAULT_fire_time_half_ms,
 	DEFAULT_BATTERY_STOP_CHARGING_MV,
 	DEFAULT_keep_alive_s,
@@ -126,7 +132,10 @@ EeDataStruct ee={
 	DEFAULT_pair_addr,
 	DEFAULT_DETECT_MARGIN_MV,
 
+	DEFAULT_flash_led_at_hit_ms,
+	DEFAULT_led_off_time_after_hit_ms,
 	0, // spare9
+
 	0, // spare10
 	0, // spare11
 	0, // spare12
@@ -219,7 +228,7 @@ static void eepromDataUpgrade(EeDataStruct* e)
 			e->idle_timeout_s = DEFAULT_idle_timeout_s;
 			e->battery_depleated_at_mv = DEFAULT_BATTERY_DEPLEATED_AT_MV;
 
-			e->hit_time_third_ms = DEFAULT_hit_time_third_ms;
+			e->short_led_blink_ms = DEFAULT_short_led_blink_ms;
 			e->fire_time_half_ms = DEFAULT_fire_time_half_ms;
 			e->stop_charging_battery_at_mv = DEFAULT_BATTERY_STOP_CHARGING_MV;
 			e->keep_alive_s = DEFAULT_keep_alive_s;
@@ -355,7 +364,14 @@ void eepromLoad(void)
 	{
 		ee.test_options = DEFAULT_test_options;
 	}
-
+	if (ee.led_on_time_after_hit_ms == 0)
+	{
+		ee.led_on_time_after_hit_ms = DEFAULT_flash_led_at_hit_ms;
+	}
+	if (ee.led_off_time_after_hit_ms == 0)
+	{
+		ee.led_off_time_after_hit_ms = DEFAULT_led_off_time_after_hit_ms;
+	}
 }
 
 

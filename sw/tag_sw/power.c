@@ -26,18 +26,44 @@ History
 TODO Use Atmega internal temp sensor so we can avoid charging at cold temp.
 
 
+Be careful when changing this code. An error here may be really bad.
+It is important to calibrate every board individually, at least early versions.
+
 
 How to calibrate voltage measuring
 
-Issue command "g v" to get voltage_reading.
-Issue command "g m" to get old_microVoltsPerUnit.
+Issue command "g 15" to get voltage_reading.
+Issue command "g 7" to get old_microVoltsPerUnit.
 Measure also battery voltage with a good voltage meter to get measured_voltage.
 new_microVoltsPerUnit = measured_voltage*old_microVoltsPerUnit/voltage_reading
-issue command "s m <new_microVoltsPerUnit>"
+issue command "s 7 <new_microVoltsPerUnit>"
 issue command "e" to save.
 reboot for setting to take effect, command "r".
+Check that it is now within +-25 mV (value may take some minutes to stabilize).
 Example:
 4100*5825/3970 -> 6016
+
+
+
+Safety information Lithium-Ion batteries (in general)
+
+LiIon batteries are classified as hazardous materials due to their ability of starting a fire.
+
+1) Do not take LiIon batteries as checked in luggage in aircraft. Luggage handling on airports
+   is often quite careless and a damaged battery is quite likely to cause a fire.
+
+2) Do not charge LiIon batteries without supervision. At the very least a fire alarm
+   is required.
+
+3) If LiIon batteries shall be stored long term they must not be fully charged or empty.
+   About 1/3 to 1/2 of capacity is recomended.
+
+4) Do not charge LiIon batteries at subzero temperatures.
+
+LiIon batteries are not particulary bad for environment but shall be disposed of with
+some care anyway.
+
+
 
 
 
@@ -615,6 +641,8 @@ void power_tick_s(void)
 		activity_time_remaining_s--;
 	}
 
+	// This is the only place from which avr_wtd_reset_from_power
+	// shall be called.
     avr_wtd_reset_from_power();
 }
 
@@ -640,6 +668,8 @@ uint16_t power_activity_time_remaining_s(void)
 	return activity_time_remaining_s;
 }
 
+// This needs to be called by other parts of SW to tell power supervisor that
+// the device is still active.
 void power_activity_set_time_remaining_s(uint16_t time_remaining_s)
 {
 	UART_PRINT_PL("p a");

@@ -50,7 +50,8 @@ enum {
 
 enum{
 	led_idle_state,
-	led_active_state,
+	led_active0_state,
+	led_active1_state,
 };
 
 static uint16_t beep_led = 0;
@@ -90,7 +91,7 @@ static int8_t beep_fifo_is_full(void)
   return ((BEEP_FIFO_INC(beep_fifo_head)) == beep_fifo_tail);
 }
 
-static int8_t beep_fifo_is_empty(void)
+int8_t beep_fifo_is_empty(void)
 {
   return (beep_fifo_head == beep_fifo_tail);
 }
@@ -124,7 +125,6 @@ static uint8_t beep_get_entries_in_queue(void)
     return ( beep_fifo_tail - beep_fifo_head ) & BEEP_FIFO_MASK;
 }
 
-
 uint8_t beep_get_free_space_in_fifo()
 {
 	return((BEEP_FIFO_SIZE-1)-beep_get_entries_in_queue());
@@ -134,6 +134,7 @@ void beep_fifo_clear(void)
 {
 	beep_fifo_tail = beep_fifo_head;
 }
+
 
 
 // Frequency will be FOSC/(tone+1)
@@ -239,17 +240,53 @@ void beep_process()
 		case led_idle_state:
 			if (beep_led>0)
 			{
-				HIT_LEDS_ON();
+				EXTERNAL_LED_ENABLE();
+				EXTERNAL_LED_ON();
+				HIT_LED0_ON();
+				HIT_LED1_OFF();
 				dec_beep_time(time_passed_ms);
-				beep_state_led = led_active_state;
+				beep_state_led = led_active0_state;
 			}
 			break;
 		default:
-		case led_active_state:
+		case led_active0_state:
 		{
-			HIT_LEDS_OFF();
-			dec_beep_time(time_passed_ms);
-			beep_state_led = led_idle_state;
+			if (beep_led>0)
+			{
+				HIT_LED0_OFF();
+				HIT_LED1_ON();
+				EXTERNAL_LED_OFF();
+				dec_beep_time(time_passed_ms);
+				beep_state_led = led_active1_state;
+			}
+			else
+			{
+				HIT_LED0_OFF();
+				HIT_LED1_OFF();
+				EXTERNAL_LED_OFF();
+				EXTERNAL_LED_DISABLE();
+				beep_state_led = led_idle_state;
+			}
+			break;
+		}
+		case led_active1_state:
+		{
+			if (beep_led>0)
+			{
+				HIT_LED0_ON();
+				HIT_LED1_OFF();
+				EXTERNAL_LED_ON();
+				dec_beep_time(time_passed_ms);
+				beep_state_led = led_active0_state;
+			}
+			else
+			{
+				HIT_LED0_OFF();
+				HIT_LED1_OFF();
+				EXTERNAL_LED_OFF();
+				EXTERNAL_LED_DISABLE();
+				beep_state_led = led_idle_state;
+			}
 			break;
 		}
 	}

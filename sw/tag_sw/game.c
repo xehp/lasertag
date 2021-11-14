@@ -56,13 +56,6 @@ enum
 	request_alive_msg = 9,
 };
 
-// TODO unknown_dev should have been zero
-enum
-{
-	pointer_dev = 0,
-	detector_dev = 1,
-	unknown_dev = 2,
-};
 
 #ifdef RADIO_MODEM_ONLY
 
@@ -187,6 +180,8 @@ enum
 	pairing_waiting_for_detector_dev,
 	pairing_waiting_for_radio_ack,
 	wait_for_alive,
+	target_device_idle_state,
+	target_device_flashing_state,
 };
 
 
@@ -209,6 +204,9 @@ static uint16_t pair_nr = -1;
 static uint32_t pair_addr = RADIO_BROADCAST_ADDRESS;
 static uint8_t pair_ir_code = 0;
 static uint8_t fire_ir_code = 0;
+
+static void	enter_state_target_dev_flashing(void);
+
 
 void game_init(void)
 {
@@ -565,7 +563,7 @@ static void process_hit_msg(struct utility_r_struct *urs, uint32_t src_addr, uin
 		print_int64(received_pair_addr);
 		uart_print_crlf();
 
-		beep_led_on(ee.hit_time_third_ms);
+		beep_led_on(ee.short_led_blink_ms);
 		send_hit_ack_msg(hit_by_code);
 		play_got_hit_sound();
 		hit_flag = 1;
@@ -623,7 +621,7 @@ static void process_hit_ack_msg(struct utility_r_struct *urs, uint32_t src_addr,
 		{
 			if (hit_flag != 1)
 			{
-				beep_led_on(ee.hit_time_third_ms);
+				beep_led_on(ee.short_led_blink_ms);
 				play_got_hit_sound();
 				hit_flag = 1;
 				power_activity_set_time_remaining_s(ee.keep_alive_s);
@@ -964,6 +962,11 @@ static int8_t process_ir_char(uint8_t ir_code)
 {
 	uint8_t game_player_code = translate_from_ir_code(ir_code);
 
+	uart_print_hex8(ir_code);
+	uart_putchar(' ');
+	uart_print_hex8(game_player_code);
+	uart_print_crlf();
+	beep_led_on(5);
 
 	/*if (ir_code != 0xFF)
 	{
@@ -1005,7 +1008,7 @@ static int8_t process_ir_char(uint8_t ir_code)
 		if (ee.device_type == pointer_dev)
 		{
 			// We are the pointer device so apply hit immediately.
-			beep_led_on(ee.hit_time_third_ms);
+			beep_led_on(ee.short_led_blink_ms);
 			play_got_hit_sound();
 			hit_flag = 1;
 			return 1;
@@ -1088,6 +1091,28 @@ static int8_t process_ir_char(uint8_t ir_code)
 	}
 
 	return 0;
+}
+
+static void process_target_ir_char(uint8_t ir_code)
+{
+	uart_print_hex8(ir_code);
+	uart_print_crlf();
+	beep_led_on(5);
+
+	uint8_t game_player_code = translate_from_ir_code(ir_code);
+
+	if (game_player_code < NOF_AVAILABLE_PLAYER_CODES)
+	{
+		// We got hit
+
+		UART_PRINT_P("g ouch ");
+		uart_print_hex8(ir_code);
+		uart_putchar(' ');
+		uart_print_hex8(game_player_code);
+		uart_print_crlf();
+
+		enter_state_target_dev_flashing();
+	}
 }
 
 static void discard_ir(void)
@@ -1224,9 +1249,6 @@ static void take_and_process_ir(void)
 	{
 		const uint8_t ch = rx1_fifo_take();
 		UART_PRINT_P("g i1 ");
-		uart_print_hex8(ch);
-		uart_print_crlf();
-		beep_led_on(5);
 		process_ir_char(ch);
 	}
 
@@ -1234,16 +1256,13 @@ static void take_and_process_ir(void)
 	{
 		const uint8_t ch = rx2_fifo_take();
 		UART_PRINT_P("g i2 ");
-		uart_print_hex8(ch);
-		uart_print_crlf();
-		beep_led_on(5);
 		process_ir_char(ch);
 	}
 }
 
 static void enter_vib_state(void)
 {
-	beep_led_on(2*ee.hit_time_third_ms);
+	beep_led_on(ee.led_on_time_after_hit_ms);
 	VIB_ON();
 	hit_flag = 0;
 	immediate_recovery_flag = 0;
@@ -1254,8 +1273,16 @@ static void enter_vib_state(void)
 
 	//set_next_alive_msg(10);
 	//check_send_alive_message();
-	game_timer_ms = avr_systime_ms_16() + ee.hit_time_third_ms;
+	game_timer_ms = avr_systime_ms_16() + ee.led_on_time_after_hit_ms;
 	game_state = game_state_vib;
+}
+
+static void enter_prepare_state(void)
+{
+	UART_PRINT_PL("g prepare");
+	VIB_OFF();
+	game_timer_ms = avr_systime_ms_16() + ee.led_off_time_after_hit_ms;
+	game_state = game_state_prepare;
 }
 
 static void enter_trigger_pulled_leds_on(const int32_t t)
@@ -1309,8 +1336,8 @@ static void enter_game_starting(void)
 {
 	const int32_t t = avr_systime_ms_32();
 	ammo = ee.full_ammo * AMMO_COST;
-	beep_led_on(ee.hit_time_third_ms);
-	game_timer_ms = t + ee.hit_time_third_ms;
+	beep_led_on(ee.short_led_blink_ms);
+	game_timer_ms = t + ee.short_led_blink_ms;
 	game_state = game_starting_up;
 }
 
@@ -1388,6 +1415,30 @@ static void enter_pairing_main_or_wait_for_alive(void)
 	}
 }
 
+static void	enter_target_device_state(void)
+{
+	const int32_t t = avr_systime_ms_32();
+	UART_PRINT_PL("g td");
+	ammo = 0;
+	power_activity_set_time_remaining_s(3600+300);
+	beep_led_on(ee.short_led_blink_ms);
+	game_timer_ms = t + ee.short_led_blink_ms;
+	game_state = target_device_idle_state;
+}
+
+static void	enter_state_target_dev_flashing()
+{
+	const int32_t t = avr_systime_ms_32();
+	UART_PRINT_PL("g f");
+	beep_led_on(250);
+	play_got_hit_sound();
+	power_activity_set_time_remaining_s(300);
+	ammo = 60;
+	game_timer_ms = t + 500;
+	game_state = target_device_flashing_state;
+}
+
+
 void game_process(void)
 {
 	const int32_t t = avr_systime_ms_32();
@@ -1424,6 +1475,7 @@ void game_process(void)
 						goodby_pair();
 					}
 					beep_led_on(3000);
+					UART_PRINT_PL("g off");
 					trig_state_ms = t;
 					trig_state = 2;
 				}
@@ -1465,7 +1517,12 @@ void game_process(void)
 			break;
 		case game_starting_up:
 			discard_ir();
-			if ((d >= 0) && (radio_fifo_get_free_space_in_tx_queue() != 0))
+			if (ee.device_type == target_dev)
+			{
+				// Target device does not need radio or pairing
+				enter_target_device_state();
+			}
+			else if ((d >= 0) && (radio_fifo_get_free_space_in_tx_queue() != 0))
 			{
 				// Radio is available now, so continue.
 				enter_pairing_main_or_wait_for_alive();
@@ -1575,11 +1632,7 @@ void game_process(void)
 			{
 				// Enter "dark" state. Dark state will last 2/3 of hit time.
 				// LEDs will be on for another 1/3 of the hit time so its not entirely dark.
-				UART_PRINT_PL("g prepare");
-				VIB_OFF();
-				beep_led_on(ee.hit_time_third_ms);
-				game_timer_ms = t + (2 * ee.hit_time_third_ms);
-				game_state = game_state_prepare;
+				enter_prepare_state();
 			}
 			break;
 		}
@@ -1691,6 +1744,44 @@ void game_process(void)
 			}
 			break;
 		}
+		case target_device_idle_state:
+		{
+			if (!rx1_fifo_is_empty())
+			{
+				const uint8_t ch = rx1_fifo_take();
+				UART_PRINT_P("t1 ");
+				process_target_ir_char(ch);
+			}
+
+			if (!rx2_fifo_is_empty())
+			{
+				const uint8_t ch = rx2_fifo_take();
+				UART_PRINT_P("t2 ");
+				process_target_ir_char(ch);
+			}
+			break;
+		}
+		case target_device_flashing_state:
+		{
+			if (d >= 0)
+			{
+				if (ammo>0)
+				{
+					ammo--;
+					beep_led_on(250);
+					if (beep_fifo_is_empty())
+					{
+						play_got_hit_sound();
+					}
+					game_timer_ms = t + 500;
+				}
+				else
+				{
+					enter_target_device_state();
+				}
+			}
+			break;
+		}
 	}
 
 	/*if (game_state != log_game_state)
@@ -1707,7 +1798,7 @@ void game_tick_s(void)
 {
 	const uint16_t full = ee.full_ammo;
 
-	if (ammo < (full*AMMO_COST))
+	if ((ammo < (full*AMMO_COST)) && (ee.device_type != target_dev))
 	{
 		ammo++;
 	}

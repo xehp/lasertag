@@ -100,7 +100,7 @@ enum
 	par_ignore_time_start_ms,
 	par_ignore_time_end_ms,
 	par_idle_timeout_s,
-	par_hit_time_ms,
+	par_short_led_blink_ms,
 	par_microVoltsPerUnit,
 	par_player_number,
 	par_off_time_ms,
@@ -139,6 +139,8 @@ enum
 	par_internal_ir_read,
 	par_external_ir_read,
 	par_test_options,
+	par_led_on_time_after_hit_ms,
+	par_led_off_time_after_hit_ms,
 	par_max_number // This must be last (its not a parameter).
 };
 
@@ -174,7 +176,7 @@ static int8_t get_par_id(const char *parname)
 				default: return par_unknown;
 			}
 			break;
-		case 'h': return par_hit_time_ms;
+		case 'h': return par_short_led_blink_ms;
 		case 'i':
 			switch(parname[1])
 			{
@@ -259,7 +261,7 @@ static int64_t get_par_value(uint8_t par)
 		case par_ignore_time_start_ms: return ee.ignore_time_start_ms;
 		case par_ignore_time_end_ms: return ee.ignore_time_end_ms;
 		case par_idle_timeout_s: return ee.idle_timeout_s;
-		case par_hit_time_ms: return ee.hit_time_third_ms;
+		case par_short_led_blink_ms: return ee.short_led_blink_ms;
 		case par_microVoltsPerUnit: return ee.microVoltsPerUnit;
 		case par_player_number: return ee.player_number;
 		case par_off_time_ms: return ee.off_time_ms;
@@ -298,6 +300,8 @@ static int64_t get_par_value(uint8_t par)
 		case par_internal_ir_read: return INTERNAL_IR_READ();
 		case par_external_ir_read: return EXTERNAL_IR_READ();
 		case par_test_options: return ee.test_options;
+		case par_led_on_time_after_hit_ms: return ee.led_on_time_after_hit_ms;
+		case par_led_off_time_after_hit_ms: return ee.led_off_time_after_hit_ms;
 
 		default: return 0;
 	}
@@ -312,7 +316,7 @@ static void set_par_value(uint8_t par, int64_t val)
 		case par_ignore_time_start_ms: ee.ignore_time_start_ms = val; break;
 		case par_ignore_time_end_ms: ee.ignore_time_end_ms = val; break;
 		case par_idle_timeout_s: ee.idle_timeout_s = val; break;
-		case par_hit_time_ms: ee.hit_time_third_ms = val; break;
+		case par_short_led_blink_ms: ee.short_led_blink_ms = val; break;
 		case par_microVoltsPerUnit: ee.microVoltsPerUnit = val; break;
 		case par_player_number: ee.player_number = val;	break;
 		case par_off_time_ms: ee.off_time_ms = val; break;
@@ -335,6 +339,8 @@ static void set_par_value(uint8_t par, int64_t val)
 		case par_battery_depleated_at_mv: ee.battery_depleated_at_mv = val; break;
 		case par_signal_strength_pairing_percent: ee.signal_strength_pairing_percent = val; break;
 		case par_test_options: ee.test_options = val; break;
+		case par_led_on_time_after_hit_ms: ee.led_on_time_after_hit_ms = val; break;
+		case par_led_off_time_after_hit_ms: ee.led_off_time_after_hit_ms = val; break;
 		default: UART_PRINT_PL("read only"); break;
 	}
 }

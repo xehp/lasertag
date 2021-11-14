@@ -254,16 +254,8 @@ No locking bits so skip those.
 
 NOTE The below is just an example, it needs to be adjusted for respective HW.
 
-avrdude -p m328p -P usb -c avrispmkII -U lfuse:w:0xDE:m  -u   -B 8
-avrdude -p m328p -P usb -c avrispmkII -U hfuse:w:0xCC:m  -u   -B 8
-avrdude -p m328p -P usb -c avrispmkII -U efuse:w:0xFD:m  -u   -B 8
-
-
-Detector board (8 MHz internal RC, 2.7 Volt power, 512 word bootloader)
-
-avrdude -p m328p -P usb -c avrispmkII -U lfuse:w:0xE2:m  -u   -B 8
-avrdude -p m328p -P usb -c avrispmkII -U hfuse:w:0xCD:m  -u   -B 8
-avrdude -p m328p -P usb -c avrispmkII -U efuse:w:0xFE:m  -u   -B 8
+Try something like this, a board on internal 8 MHz internal RC, 1024 word boot section:
+avrdude -p m328p -P usb -c avrispmkII -U lfuse:w:0xe2:m -U hfuse:w:0xda:m -U efuse:w:0xfe:m  
 
 
 

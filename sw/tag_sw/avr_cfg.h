@@ -27,26 +27,21 @@ History
 #ifndef AVR_CFG_H
 #define AVR_CFG_H
 
-// HW_VERSION:
-// 0  2021-04-05
-// 1  2021-04-23 or 2021-04-27 (PCBs with no SMD)
-// 2  2021-05-27 (wrong transistor was used)
-// 3  2021-06-14 detector board
-#define HW_VERSION 3
+// config HW_VERSION:
+// 0      2021-04-05 a legacy version
+// 1      2021-04-23 or 2021-04-27 (PCBs with no SMD)
+// 2      2021-05-27 (wrong transistor was used)
+// 3      2021-06-14 detector board
+// 4      2021-10-24 Pointer_board_hammond_box (also FT232RL/FT230XS)
+#define HW_VERSION 4
 // TODO Move this to its own file since we change it often.
 
 
-// Define this if its just a radio modem/GW.
-#if HW_VERSION == 0
-#define RADIO_MODEM_ONLY
-#endif
 
 #if HW_VERSION <= 2
 #define AVR_FOSC 16000000L
-#elif HW_VERSION == 3
-#define AVR_FOSC 8000000L
 #else
-#define AVR_FOSC 12000000L
+#define AVR_FOSC 8000000L
 #endif
 //#define AVR_FOSC 7370000
 
@@ -55,6 +50,10 @@ History
 // Recommended baud rates are 300, 9600 or 19200,
 // If FOSC is 16 MHz and 115200 is selected here we get 118000 baud instead.
 #define UART_BAUDRATE 9600
+
+
+// Define this if its to be used as a radio modem/GW.
+//#define RADIO_MODEM_ONLY
 
 
 // Using pin PD3 for debug LED
@@ -83,14 +82,15 @@ History
 
 // On next HW version 2021-04-23 and later IR output will be on TMR0.
 // Uncomment only one of the below
-#if HW_VERSION == 0
+#if (HW_VERSION == 0)
 #define IR_OUTPUT_USE_TMR1
 #else
 #define IR_OUTPUT_USE_TMR0
 #endif
 
 // On second generation PCB IR was on OCA0/PD6
-// TODO On third generation it shall be on OC0B/PD5
+// On third generation it shall be on OC0B/PD5
+// Uncomment only one of the below
 //#define IR_USE_OC0A_PD6
 #define IR_USE_OC0B_PD5
 
@@ -112,23 +112,22 @@ History
 #define RELAY_BIT PB0
 #define RELAY_ACTIVE_LOW
 
-// Output for hit indication LEDs, PB2
-// NOTE in next HW version 2021-04-23 and later HIT LEDS will be on PD5 (pin 11 of 28)
+// Output for hit indication LEDs
 #if HW_VERSION == 0
-#define HIT_LEDS_DDR DDRB
-#define HIT_LEDS_PORT PORTB
-#define HIT_LEDS_BIT PB2
-#define HIT_LEDS_ACTIVE_HIGH
+#define HIT_LED0_DDR DDRB
+#define HIT_LED0_PORT PORTB
+#define HIT_LED0_BIT PB2
+#define HIT_LED0_ACTIVE_HIGH
 #elif HW_VERSION == 2
-#define HIT_LEDS_DDR DDRD
-#define HIT_LEDS_PORT PORTD
-#define HIT_LEDS_BIT PD6
-#define HIT_LEDS_ACTIVE_LOW
+#define HIT_LED0_DDR DDRD
+#define HIT_LED0_PORT PORTD
+#define HIT_LED0_BIT PD6
+#define HIT_LED0_ACTIVE_LOW
 #else
-#define HIT_LEDS_DDR DDRD
-#define HIT_LEDS_PORT PORTD
-#define HIT_LEDS_BIT PD6
-#define HIT_LEDS_ACTIVE_HIGH
+#define HIT_LED0_DDR DDRD
+#define HIT_LED0_PORT PORTD
+#define HIT_LED0_BIT PD6
+#define HIT_LED0_ACTIVE_HIGH
 #endif
 
 // Output for Laser, PD7
@@ -145,8 +144,8 @@ History
 #endif
 
 // Output for vibrator, PC5
-#if HW_VERSION == 3
-// no vib
+#if HW_VERSION >= 3
+// no vib on later HW
 #elif HW_VERSION == 2
 #define VIB_DDR DDRC
 #define VIB_PORT PORTC
@@ -193,14 +192,14 @@ History
 
 
 // Input for internal IR detector, PC3
-// This is active low,but also active is for zero. So lets call it active high.
+// This is active low, but also active is for zero. So lets call it active high.
 #define INTERNAL_IR_PORT PORTC
 #define INTERNAL_IR_PIN PINC
 #define INTERNAL_IR_BIT PC3
 #define INTERNAL_IR_ACTIVE_HIGH
 
 // Input for external IR detector, PC1
-#if HW_VERSION == 3
+#if HW_VERSION >= 3
 #define EXTERNAL_IR_PORT PORTC
 #define EXTERNAL_IR_PIN PINC
 #define EXTERNAL_IR_BIT PC5
@@ -212,5 +211,12 @@ History
 #define EXTERNAL_IR_ACTIVE_HIGH
 #endif
 
+#if HW_VERSION == 4
+// In HW version 4 the EXTERNAL IR Port also controls the LEDs on other side.
+#define EXTERNAL_IR_LED_PORT EXTERNAL_IR_PORT
+#define EXTERNAL_IR_LED_DDR DDRC
+#define EXTERNAL_IR_LED_BIT EXTERNAL_IR_BIT
+#define EXTERNAL_IR_LED_ACTIVE_LOW
+#endif
 
 #endif

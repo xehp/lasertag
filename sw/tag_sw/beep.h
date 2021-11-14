@@ -31,6 +31,7 @@ void beep_process(void);
 uint8_t beep_get_free_space_in_fifo(void);
 void beep_fifo_put(uint16_t tone, uint16_t duration_ms, uint8_t volume_in_percent);
 void beep_fifo_clear(void);
+int8_t beep_fifo_is_empty(void);
 
 void beep_led_on(uint16_t duration_ms);
 void beep_led_off(void);

@@ -78,7 +78,7 @@ void avr_tmr1_pwm_off(void)
 // set up timer 1
 void avr_tmr1_init(void)
 {
-	uart_print_P(PSTR("tmr1\r\n"));
+	uart_print_P(PSTR("tmr1 38 KHz\r\n"));
 
 	// Set up timer1 so it can give 38 KHz on OC1A (AKA PB1 pin 15 of 28)
 

@@ -47,21 +47,40 @@ History
 
 
 
-/* enable relay power pin as output */
-#define HIT_LEDS_ENABLE() HIT_LEDS_DDR |= _BV(HIT_LEDS_BIT);
+/* enable LED 0 pin as output */
+#define HIT_LED0_ENABLE() HIT_LED0_DDR |= _BV(HIT_LED0_BIT);
 
-/* disable relay power pin as output */
-#define HIT_LEDS_DISABLE() HIT_LEDS_DDR &= ~(_BV(HIT_LEDS_BIT));
+/* disable LED 0 pin as output */
+#define HIT_LED0_DISABLE() HIT_LED0_DDR &= ~(_BV(HIT_LED0_BIT));
 
-/* set relay power output to on or off */
-#ifdef HIT_LEDS_ACTIVE_HIGH
-#define HIT_LEDS_ON() HIT_LEDS_PORT |= _BV(HIT_LEDS_BIT);
-#define HIT_LEDS_OFF() HIT_LEDS_PORT &= ~_BV(HIT_LEDS_BIT);
-#elif defined HIT_LEDS_ACTIVE_LOW
-#define HIT_LEDS_ON() HIT_LEDS_PORT &= ~_BV(HIT_LEDS_BIT);
-#define HIT_LEDS_OFF() HIT_LEDS_PORT |= _BV(HIT_LEDS_BIT);
+/* set LED 0 output to on or off */
+#ifdef HIT_LED0_ACTIVE_HIGH
+#define HIT_LED0_ON() HIT_LED0_PORT |= _BV(HIT_LED0_BIT);
+#define HIT_LED0_OFF() HIT_LED0_PORT &= ~_BV(HIT_LED0_BIT);
+#elif defined HIT_LED0_ACTIVE_LOW
+#define HIT_LED0_ON() HIT_LED0_PORT &= ~_BV(HIT_LED0_BIT);
+#define HIT_LED0_OFF() HIT_LED0_PORT |= _BV(HIT_LED0_BIT);
 #endif
 
+#if (defined HIT_LED1_ACTIVE_HIGH) || (defined HIT_LED1_ACTIVE_LOW)
+	/* enable LED 1 pin as output */
+	#define HIT_LED1_ENABLE() HIT_LED1_DDR |= _BV(HIT_LED1_BIT);
+	/* disable LED 1 pin as output */
+	#define HIT_LED1_DISABLE() HIT_LED1_DDR &= ~(_BV(HIT_LED1_BIT));
+	/* set LED 1 output to on or off */
+	#ifdef HIT_LED1_ACTIVE_HIGH
+		#define HIT_LED1_ON() HIT_LED1_PORT |= _BV(HIT_LED1_BIT);
+		#define HIT_LED1_OFF() HIT_LED1_PORT &= ~_BV(HIT_LED1_BIT);
+	#elif defined HIT_LED1_ACTIVE_LOW
+		#define HIT_LED1_ON() HIT_LED1_PORT &= ~_BV(HIT_LED1_BIT);
+		#define HIT_LED1_OFF() HIT_LED1_PORT |= _BV(HIT_LED1_BIT);
+	#endif
+#else
+	#define HIT_LED1_ENABLE()
+	#define HIT_LED1_DISABLE()
+	#define HIT_LED1_ON()
+	#define HIT_LED1_OFF()
+#endif
 
 
 /* enable relay power pin as output */
@@ -99,10 +118,11 @@ History
 #define VIB_OFF()
 #endif
 
-#define TRIGGER_INIT() {TRIGGER_PORT |= _BV(TRIGGER_BIT);} // activate internal pull up
 #ifdef TRIGGER_ACTIVE_HIGH
+#define TRIGGER_INIT()
 #define TRIGGER_READ() (TRIGGER_PORT_PIN & _BV(TRIGGER_BIT))
 #elif defined TRIGGER_ACTIVE_LOW
+#define TRIGGER_INIT() {TRIGGER_PORT |= _BV(TRIGGER_BIT);} // activate internal pull up
 #define TRIGGER_READ() ((TRIGGER_PORT_PIN & _BV(TRIGGER_BIT)) == 0)
 #endif
 
@@ -122,6 +142,21 @@ History
 #elif defined EXTERNAL_IR_ACTIVE_LOW
 #define EXTERNAL_IR_READ() ((EXTERNAL_IR_PIN & _BV(EXTERNAL_IR_BIT)) == 0)
 #endif
+
+#ifdef EXTERNAL_IR_LED_ACTIVE_LOW
+	#define EXTERNAL_LED_ENABLE() {EXTERNAL_IR_LED_DDR |= _BV(EXTERNAL_IR_LED_BIT);}
+	#define EXTERNAL_LED_DISABLE() {EXTERNAL_IR_LED_DDR &= ~(_BV(EXTERNAL_IR_LED_BIT));}
+	#define EXTERNAL_LED_ON() {EXTERNAL_IR_LED_PORT &= ~_BV(EXTERNAL_IR_LED_BIT);}
+	#define EXTERNAL_LED_OFF() {EXTERNAL_IR_LED_PORT |= _BV(EXTERNAL_IR_LED_BIT);}
+	#define EXTERNAL_LED_IS_ENABLE() ((EXTERNAL_IR_LED_DDR) & (_BV(EXTERNAL_IR_LED_BIT)))
+#else
+	#define EXTERNAL_LED_ENABLE()
+	#define EXTERNAL_LED_DISABLE()
+	#define EXTERNAL_LED_ON()
+	#define EXTERNAL_LED_OFF()
+	#define EXTERNAL_LED_IS_ENABLE() 0
+#endif
+
 
 
 #if (defined IR_OUTPUT_USE_TMR0) && (defined IR_OUTPUT_USE_TMR1)

@@ -90,7 +90,7 @@ int main( void )
 	avr_wtd_reset_and_sleep();
 	#endif
 
-	#if HW_VERSION==0
+	#if HW_VERSION == 0
 	avr_tmr0_init();
 	avr_tmr1_init();
 	#else
@@ -110,7 +110,8 @@ int main( void )
 		uart_print_crlf();
 	}
 
-	HIT_LEDS_ENABLE();
+	HIT_LED0_ENABLE();
+	HIT_LED1_ENABLE();
 	LASER_ENABLE();
 	VIB_ENABLE();
 	TRIGGER_INIT();

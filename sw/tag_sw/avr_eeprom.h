@@ -29,11 +29,20 @@ History
 #include <stdint.h>
 
 
+// TODO unknown_dev should have been zero
+enum
+{
+	pointer_dev = 0,
+	detector_dev = 1,
+	unknown_dev = 2,
+	target_dev = 3,
+};
+
 
 // A magic number so we can detect if expected format of stored eedata has been changed (don't use zero).
 #define EEDATA_MAGIC_NR 0x0126
 
-// Is there a old data format that we may encounter.
+// Is there an old data format that we may encounter.
 #define EEDATA_LEGACY_MAGIC_NR 0x0125
 
 
@@ -57,7 +66,7 @@ typedef struct
 	uint16_t idle_timeout_s; // after how long inactivity to power off
 	uint16_t battery_depleated_at_mv;
 
-	uint16_t hit_time_third_ms; // how long to be inactive after being hit, actual time is 3x this value,
+	uint16_t short_led_blink_ms;
 	uint16_t fire_time_half_ms; // how often we can fire, that time is 2x this value.
 	uint16_t stop_charging_battery_at_mv;
 	uint16_t keep_alive_s; // how often a keep alive message needs to be sent.
@@ -80,11 +89,18 @@ typedef struct
 	int32_t pair_addr;
 	int32_t detect_margin_mv;
 
-	int64_t spare9;
+	int16_t led_on_time_after_hit_ms;
+	int16_t led_off_time_after_hit_ms;
+	int32_t spare9;
+
 	int64_t spare10;
+
 	int64_t spare11;
+
 	int64_t spare12;
+
 	int64_t spare13;
+
 	int64_t spare14;
 
 	uint32_t spare15;
@@ -112,7 +128,7 @@ typedef struct
 	uint16_t idle_timeout_s; // after how long inactivity to power off
 	uint16_t spare_off_time_s; // This used to be off_time_s but its been replaced by off_time_ms
 
-	uint16_t hit_time_third_ms; // how long to be inactive after being hit, actual time is 3x this value,
+	uint16_t short_led_blink_ms; // how long to be inactive after being hit, actual time is 3x this value,
 	uint16_t fire_time_half_ms; // how often we can fire, that time is 2x this value.
 	uint8_t audio_volume_percent;
 	uint8_t spare3;

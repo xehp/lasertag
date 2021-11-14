@@ -362,6 +362,10 @@ SIGNAL (TIMER2_COMPA_vect)
 			{
 				// Input is "1", wait for a start bit (0).
 			}
+			else if (EXTERNAL_LED_IS_ENABLE())
+			{
+				// Line is used for LED output so this is not a start bit of input.
+			}
 			else
 			{
 				// possible start bit (a zero)
@@ -400,7 +404,11 @@ SIGNAL (TIMER2_COMPA_vect)
 			break;
 		case DIV_ROUND((NOF_BITS+1)*AVR_TMR2_TICKS_PER_SEC+AVR_TMR2_TICKS_PER_SEC/2, SOFT_UART_BAUDRATE):
 			// stop bit
-			if (EXTERNAL_IR_READ())
+			if (EXTERNAL_LED_IS_ENABLE())
+			{
+				// Line is used for LED output so ignore received char.
+			}
+			else if (EXTERNAL_IR_READ())
 			{
 				rx2_fifo_put(rx2_ch);
 			}
